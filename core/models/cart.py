@@ -1,9 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User
+from .user import UserAccount
 from .product import Product  # Esto no genera un problema circular.
 
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(UserAccount, on_delete=models.CASCADE, default=1)
     cart_items = models.ManyToManyField(Product, through='CartProduct')
 
     def __str__(self):

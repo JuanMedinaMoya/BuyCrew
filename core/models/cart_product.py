@@ -10,8 +10,8 @@ class CartProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text="El producto que está en el carrito")
     quantity = models.PositiveIntegerField(default=1, help_text="Cantidad de este producto en el carrito")
 
-    def __str__(self):
-        return f"{self.quantity} {self.product.name} in {self.cart.user.username}'s cart"
+    # def __str__(self):
+    #     return f"{self.quantity} {self.product.name} in {self.cart.user.username}'s cart"
 
     def total_price(self):
         """
