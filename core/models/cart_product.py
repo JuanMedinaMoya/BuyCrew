@@ -6,7 +6,7 @@ class CartProduct(models.Model):
     """
     Relación intermedia que representa un producto específico en un carrito con su cantidad.
     """
-    cart = models.ForeignKey('Cart', on_delete=models.CASCADE, help_text="El carrito al que pertenece este producto")
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, help_text="El carrito al que pertenece este producto")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, help_text="El producto que está en el carrito")
     quantity = models.PositiveIntegerField(default=1, help_text="Cantidad de este producto en el carrito")
 
