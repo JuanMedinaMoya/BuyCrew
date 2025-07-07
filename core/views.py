@@ -4,6 +4,7 @@ from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializ
 # from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model, login, logout
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
@@ -28,15 +29,21 @@ class UserRegister(APIView):
 
 class UserLogin(APIView):
     permission_classes = [AllowAny]
-    authentication_classes = [SessionAuthentication]
+
     def post(self, request):
-        # validated_data = custom_validation(request.data)
-        data=request.data
-        serializer = UserLoginSerializer(data=data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.check_user(data)
-            login(request, user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': {
+                'email': user.email,
+                'name': user.name,
+            }
+        }, status=status.HTTP_200_OK)
 
 class UserLogout(APIView):
     permission_classes = [IsAuthenticated]
