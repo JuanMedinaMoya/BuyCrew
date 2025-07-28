@@ -1,4 +1,5 @@
 from django.db import models
+from .category import Category
 
 class Product(models.Model):
     """
@@ -7,6 +8,7 @@ class Product(models.Model):
     name = models.TextField(max_length=100, help_text="Nombre del producto")
     price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Precio del producto")
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en el inventario")
+    categories = models.ManyToManyField(Category, related_name='products')
 
     def __str__(self):
         return self.name

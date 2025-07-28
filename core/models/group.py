@@ -3,8 +3,8 @@ from .user import UserAccount
 
 class Group(models.Model):
     name = models.CharField(max_length=100)
-    creator = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name='grupos_creados')
-    users = models.ManyToManyField(UserAccount, related_name='grupos')
+    creator = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name='owned_groups')
+    members = models.ManyToManyField(UserAccount, related_name='groups_in')
     people_count = models.IntegerField()
     duration_days = models.IntegerField()
     preferences = models.TextField(blank=True)

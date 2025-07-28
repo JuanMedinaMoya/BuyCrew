@@ -1,7 +1,7 @@
 from django.forms import ValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
-from .models import Cart, Product, UserAccount
+from .models import Cart, Product, UserAccount, Group, Category
 from django.contrib.auth import get_user_model, authenticate
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -53,3 +53,16 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+class GroupSerializer(serializers.ModelSerializer):
+    members = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=UserAccount.objects.all()
+    )
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['name', 'parent']
