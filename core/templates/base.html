@@ -1,0 +1,42 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>BuyCrew</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+
+    <!-- HTMX + CSRF -->
+    <script>
+        document.body?.addEventListener('htmx:configRequest', function (event) {
+            const csrftoken = getCookie('csrftoken');
+            if (csrftoken) {
+                event.detail.headers['X-CSRFToken'] = csrftoken;
+            }
+        });
+
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    return decodeURIComponent(cookie.substring(name.length + 1));
+                }
+            }
+            return null;
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <div id="navbar" hx-get="/api/v1/user/" hx-trigger="load" hx-swap="outerHTML">
+        <div class="bg-white shadow px-6 py-4 text-center">Cargando navbar...</div>
+    </div>
+
+    <div class="max-w-3xl mx-auto mt-10 px-4">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

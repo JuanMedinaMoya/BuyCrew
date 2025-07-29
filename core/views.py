@@ -9,56 +9,70 @@ from django.contrib.auth import get_user_model, login, logout, authenticate, log
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework.decorators import action
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from django.template.context_processors import csrf
+from django.shortcuts import get_list_or_404
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserAccount.objects.all()
     serializer_class = UserRegisterSerializer
     permission_classes = [AllowAny]
 
-@method_decorator(csrf_exempt, name='dispatch')
 class UserRegister(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()  # Usar save(), no create() manual
-            login(request, user)  # Loguea al usuario tras registrarse
-            return Response({'detail': 'Registro exitoso'}, status=201)
+            user = serializer.save()
+            login(request, user)
+            response = HttpResponse()
+            response['HX-Redirect'] = '/'
+            return response
         return Response(serializer.errors, status=400)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class UserLogin(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        user = authenticate(request, username=email, password=password)
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if user is not None:
-            login(request, user)  # Autenticación de sesión
-            return Response({'detail': 'Login correcto'})
-        else:
-            return Response({'detail': 'Credenciales inválidas'}, status=401)
+        user = serializer.validated_data['user']
+        login(request, user)
+
+        response = HttpResponse()
+        response['HX-Redirect'] = '/'
+        return response
 
 class UserLogout(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         logout(request)
-        return Response(status=status.HTTP_200_OK)
+        response = HttpResponse()
+        response['HX-Redirect'] = '/'
+        return response
         
+
+
 class UserView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
-        # validated_data = custom_validation(request.data)
-        serializer = UserSerializer(request.user)
-        return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+        context = {'user': request.user}
+        context.update(csrf(request))
+
+        if request.user.is_authenticated:
+            html = render_to_string("core/navbar_authenticated.html", context)
+        else:
+            html = render_to_string("core/navbar_anonymous.html")
+        return HttpResponse(html)
 
 
 class CartViewSet(viewsets.ModelViewSet):
@@ -131,3 +145,42 @@ class EventTypeViewSet(viewsets.ModelViewSet):
     queryset = EventType.objects.all()
     serializer_class = EventTypeSerializer
     permission_classes = [IsAuthenticated]
+
+def login_view(request):
+    return render(request, "core/login.html")
+
+def register_view(request):
+    return render(request, "core/register.html")
+
+def home_view(request):
+    models = ['product', 'category', 'group', 'event_type']
+    return render(request, "core/home.html", {"models": models})
+
+def product_create_view(request):
+    categories = Category.objects.all()
+    return render(request, "core/product_form.html", {"category_list": categories})
+
+def product_list_view(request):
+    items = Product.objects.all()
+    return render(request, "core/product_list.html", {"items": items})
+
+def category_create_view(request):
+    return render(request, "core/category_form.html")
+
+def category_list_view(request):
+    items = Category.objects.all()
+    return render(request, "core/category_list.html", {"items": items})
+
+def group_create_view(request):
+    return render(request, "core/group_form.html")
+
+def group_list_view(request):
+    items = Group.objects.all()
+    return render(request, "core/group_list.html", {"items": items})
+
+def event_type_create_view(request):
+    return render(request, "core/event_type_form.html")
+
+def event_type_list_view(request):
+    items = EventType.objects.all()
+    return render(request, "core/event_type_list.html", {"items": items})

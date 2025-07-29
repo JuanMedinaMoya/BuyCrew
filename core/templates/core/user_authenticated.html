@@ -1,0 +1,7 @@
+<div id="user-controls" class="flex items-center space-x-4">
+    <span class="text-gray-700 font-medium">Hola, {{ user.name }}</span>
+    <form hx-post="/api/v1/logout/" hx-target="#user-controls" hx-swap="outerHTML">
+        {% csrf_token %}
+        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">Logout</button>
+    </form>
+</div>

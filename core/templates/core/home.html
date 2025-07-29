@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="bg-white p-6 rounded shadow mt-4">
+    <h2 class="text-2xl font-semibold mb-4">Bienvenido a BuyCrew</h2>
+    <p class="text-gray-700">Organiza tus compras en grupo para barbacoas, casas rurales, cumpleaños y más.</p>
+</div>
+
+{% if user.is_authenticated %}
+  <h3 class="text-xl font-bold mt-8 mb-4">Gestión de elementos</h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for model in models %}
+      <div class="bg-white p-6 rounded shadow">
+        <h4 class="text-lg font-semibold mb-2">{{ model|capfirst }}</h4>
+        <a href="/{{ model }}/create/" class="text-blue-600 hover:underline block mb-1">➕ Crear {{ model }}</a>
+        <a href="/{{ model }}/list/" class="text-blue-600 hover:underline">📋 Ver lista de {{ model }}s</a>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% endblock %}

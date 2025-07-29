@@ -62,7 +62,7 @@ ROOT_URLCONF = 'BuyCrew.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -74,6 +74,11 @@ TEMPLATES = [
         },
     },
 ]
+
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+LOGIN_URL = '/login/'
 
 WSGI_APPLICATION = 'BuyCrew.wsgi.application'
 
@@ -141,3 +146,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',  # opcional
     ],
 }
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # este es el backend básico
+]

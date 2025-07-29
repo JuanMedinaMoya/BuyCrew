@@ -9,16 +9,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserAccount
-        fields = '__all__'
+        exclude = ['groups', 'user_permissions', 'is_active']
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = UserAccount(**validated_data)
-        user.set_password(password)
-        user.save()
-
+        user = UserAccount.objects.create_user(password=password, **validated_data)
         return user
-    
+
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()

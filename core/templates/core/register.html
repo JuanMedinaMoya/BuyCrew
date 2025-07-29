@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Registro</h1>
+
+<form 
+    hx-post="/api/v1/register/" 
+    hx-target="#register-messages" 
+    hx-swap="innerHTML" 
+    class="space-y-4" 
+    method="POST"
+>
+  {% csrf_token %}
+  <input type="email" name="email" placeholder="Email" class="w-full p-2 border rounded" required>
+  <input type="text" name="name" placeholder="Nombre" class="w-full p-2 border rounded" required>
+  <input type="password" name="password" placeholder="Contraseña" class="w-full p-2 border rounded" required>
+  <button class="w-full bg-green-600 text-white py-2 rounded" type="submit">Registrarse</button>
+</form>
+
+<div id="register-messages" class="mt-4"></div>
+{% endblock %}
