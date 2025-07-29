@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-2xl font-semibold mb-4">Categorías Existentes</h2>
+
+<ul class="list-disc pl-5 space-y-2">
+  {% for category in items %}
+    <li>
+      <a href="{% url 'category_detail' category.name %}" class="text-blue-600 hover:underline">
+        {{ category.name }}
+      </a>
+      {% if category.parent %}
+        <span class="text-sm text-gray-600">(Padre: {{ category.parent.name }})</span>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li class="text-gray-600">No hay categorías aún.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

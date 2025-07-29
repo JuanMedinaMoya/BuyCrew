@@ -1,78 +1,132 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="text-2xl font-semibold mb-4">Crear Producto</h2>
+
+<h2 class="text-2xl font-semibold mb-4">
+  {% if edit_mode %}Editar Producto{% else %}Crear Producto{% endif %}
+</h2>
 
 <form 
-  id="product-form"
-  hx-post="/api/v1/product/" 
-  hx-target="#form-response" 
-  hx-swap="innerHTML" 
+  method="POST" 
   class="space-y-4" 
-  method="POST"
+  hx-post="{% if edit_mode %}/product/{{ product.id }}/edit/{% else %}/product/create/{% endif %}" 
+  hx-target="body" 
+  hx-swap="outerHTML"
+  onsubmit="return ensureSelected()"
 >
   {% csrf_token %}
 
-  <input type="text" name="name" placeholder="Nombre del producto" class="w-full p-2 border rounded" required>
-  <input type="number" step="0.01" name="price" placeholder="Precio" class="w-full p-2 border rounded" required>
-  <input type="number" name="stock" placeholder="Stock disponible" class="w-full p-2 border rounded" required>
+  {% if success %}
+    <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+      {{ success }}
+    </div>
+  {% endif %}
 
-  <input type="number" step="0.1" name="ratio_consumo" placeholder="Ratio de consumo (por persona/día)" class="w-full p-2 border rounded" required>
+  {% if error %}
+    <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <input 
+    type="text" 
+    name="name" 
+    placeholder="Nombre del producto" 
+    class="w-full p-2 border rounded" 
+    required 
+    value="{{ product.name|default:'' }}"
+  >
+
+  <input 
+    type="number" 
+    step="0.01" 
+    name="price" 
+    placeholder="Precio" 
+    class="w-full p-2 border rounded" 
+    required 
+    value="{{ product.price|default:'' }}"
+  >
+
+  <input 
+    type="number" 
+    name="stock" 
+    placeholder="Stock disponible" 
+    class="w-full p-2 border rounded" 
+    required 
+    value="{{ product.stock|default:'' }}"
+  >
+
+  <input 
+    type="number" 
+    step="0.1" 
+    name="ratio_consumo" 
+    placeholder="Ratio de consumo (por persona/día)" 
+    class="w-full p-2 border rounded" 
+    required 
+    value="{{ product.ratio_consumo|default:'' }}"
+  >
 
   <label class="block font-medium mb-2">Categorías:</label>
   <div class="flex space-x-4">
     <select id="availableCategories" multiple class="w-1/2 p-2 border rounded h-48">
       {% for category in category_list %}
-        <option value="{{ category.name }}">{{ category.name }}</option>
+        {% if product and category in product.categories.all %}
+          {# omitida #}
+        {% else %}
+          <option value="{{ category.name }}">{{ category.name }}</option>
+        {% endif %}
       {% endfor %}
     </select>
-  
+
     <div class="flex flex-col justify-center space-y-2">
       <button type="button" onclick="moveSelected('availableCategories', 'selectedCategories')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">→</button>
       <button type="button" onclick="moveSelected('selectedCategories', 'availableCategories')" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">←</button>
     </div>
-  
-    <select id="selectedCategories" name="categories" multiple  class="w-1/2 p-2 border rounded h-48"></select>
+
+    <select id="selectedCategories" name="categories" multiple class="w-1/2 p-2 border rounded h-48">
+      {% if product %}
+        {% for category in product.categories.all %}
+          <option value="{{ category.name }}" selected>{{ category.name }}</option>
+        {% endfor %}
+      {% endif %}
+    </select>
   </div>  
 
-  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Guardar</button>
-
+  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+    {% if edit_mode %}Actualizar{% else %}Guardar{% endif %}
+  </button>
 </form>
 
-<div id="form-response" class="mt-4"></div>
 <script>
-    function moveSelected(fromId, toId) {
-      const from = document.getElementById(fromId);
-      const to = document.getElementById(toId);
-  
-      const selectedOptions = Array.from(from.selectedOptions);
-      selectedOptions.forEach(option => {
-        const newOption = new Option(option.text, option.value);
-        to.add(newOption);
-        from.remove(option.index);
-      });
-      sortSelectOptions(to);
-    }
-    function sortSelectOptions(selectElement) {
-        const options = Array.from(selectElement.options);
-        options.sort((a, b) => a.text.localeCompare(b.text));
-        selectElement.innerHTML = '';
-        options.forEach(opt => selectElement.add(opt));
-    }
+  function moveSelected(fromId, toId) {
+    const from = document.getElementById(fromId);
+    const to = document.getElementById(toId);
 
-    document.getElementById('product-form').addEventListener('submit', function (e) {
-      const selected = document.getElementById('selectedCategories');
-      const selectedOptions = Array.from(selected.options);
-      
-      if (selectedOptions.length === 0) {
-        alert("Debes seleccionar al menos una categoría.");
-        e.preventDefault();
-        return;
-      }
-  
-      selectedOptions.forEach(option => option.selected = true);
+    const selectedOptions = Array.from(from.selectedOptions);
+    selectedOptions.forEach(option => {
+      const newOption = new Option(option.text, option.value);
+      to.add(newOption);
+      from.remove(option.index);
     });
-  
-</script>
-{% endblock %}
+    sortSelectOptions(to);
+  }
 
-  
+  function sortSelectOptions(selectElement) {
+    const options = Array.from(selectElement.options);
+    options.sort((a, b) => a.text.localeCompare(b.text));
+    selectElement.innerHTML = '';
+    options.forEach(opt => selectElement.add(opt));
+  }
+
+  function ensureSelected() {
+    const selected = document.getElementById('selectedCategories');
+    const options = Array.from(selected.options);
+    if (options.length === 0) {
+      alert("Debes seleccionar al menos una categoría.");
+      return false;
+    }
+    options.forEach(option => option.selected = true);
+    return true;
+  }
+</script>
+
+{% endblock %}

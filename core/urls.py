@@ -8,6 +8,8 @@ from .views import (
     category_create_view, category_list_view,
     group_create_view, group_list_view,
     event_type_create_view, event_type_list_view,
+    product_detail, product_edit, category_detail_view,
+    category_edit_view, product_delete, category_delete_view
 )
 
 
@@ -32,12 +34,18 @@ urlpatterns = [
     path('api/v1/logout/', UserLogout.as_view(), name='logout'), # no es necesario en el logout
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
-    path('product/create/', product_create_view),
-    path('product/list/', product_list_view),
+    path('product/create/', product_create_view, name='product_create'),
+    path('product/list/', product_list_view, name='product_list_view'),
+    path('product/<int:pk>/delete/', product_delete, name='product_delete'),
     path('category/create/', category_create_view),
     path('category/list/', category_list_view),
     path('group/create/', group_create_view),
     path('group/list/', group_list_view),
     path('event_type/create/', event_type_create_view),
     path('event_type/list/', event_type_list_view),
+    path('product/<int:pk>/', product_detail, name='product_detail'),
+    path('product/<int:pk>/edit/', product_edit, name='product_edit'),
+    path('category/<str:name>/', category_detail_view, name='category_detail'),
+    path('category/<str:name>/edit/', category_edit_view, name='category_edit'),
+    path('category/<str:name>/delete/', category_delete_view, name='category_delete'),
 ]

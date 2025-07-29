@@ -10,14 +10,17 @@ from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from rest_framework.decorators import action
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.template.context_processors import csrf
+from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_list_or_404
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_POST
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserAccount.objects.all()
@@ -156,20 +159,49 @@ def home_view(request):
     models = ['product', 'category', 'group', 'event_type']
     return render(request, "core/home.html", {"models": models})
 
+@csrf_protect
 def product_create_view(request):
-    categories = Category.objects.all()
-    return render(request, "core/product_form.html", {"category_list": categories})
+    context = {"category_list": Category.objects.all()}
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        price = request.POST.get("price")
+        stock = request.POST.get("stock")
+        ratio = request.POST.get("ratio_consumo")
+        categories = request.POST.getlist("categories")
+
+        if not categories:
+            context["error"] = "Debes seleccionar al menos una categoría."
+        else:
+            product = Product.objects.create(
+                name=name,
+                price=price,
+                stock=stock,
+                ratio_consumo=ratio
+            )
+            product.categories.set(categories)
+            context["success"] = "✅ Producto creado correctamente"
+
+    return render(request, "core/product_form.html", context)
+
+
 
 def product_list_view(request):
     items = Product.objects.all()
     return render(request, "core/product_list.html", {"items": items})
 
-def category_create_view(request):
-    return render(request, "core/category_form.html")
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, "core/product_detail.html", {"product": product})
 
-def category_list_view(request):
-    items = Category.objects.all()
-    return render(request, "core/category_list.html", {"items": items})
+
+
+@require_POST
+@csrf_protect
+def product_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    product.delete()
+    return redirect("/product/list/?deleted=1")
 
 def group_create_view(request):
     return render(request, "core/group_form.html")
@@ -184,3 +216,87 @@ def event_type_create_view(request):
 def event_type_list_view(request):
     items = EventType.objects.all()
     return render(request, "core/event_type_list.html", {"items": items})
+
+@csrf_protect
+def category_create_view(request):
+    context = {"category_list": Category.objects.all()}
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        parent_name = request.POST.get("parent")
+        parent = Category.objects.filter(name=parent_name).first() if parent_name else None
+
+        if Category.objects.filter(name=name).exists():
+            context["error"] = f"La categoría '{name}' ya existe."
+        else:
+            Category.objects.create(name=name, parent=parent)
+            context["success"] = f"✅ Categoría '{name}' creada correctamente"
+    
+    return render(request, "core/category_form.html", context)
+
+
+def category_list_view(request):
+    items = Category.objects.all()
+    return render(request, "core/category_list.html", {"items": items})
+
+@csrf_protect
+def product_edit(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    categories = Category.objects.all()
+
+    if request.method == "POST":
+        product.name = request.POST.get("name")
+        product.price = request.POST.get("price")
+        product.stock = request.POST.get("stock")
+        product.ratio_consumo = request.POST.get("ratio_consumo")
+
+        category_ids = request.POST.getlist("categories")
+        product.save()
+        product.categories.set(category_ids)
+
+        response = HttpResponse()
+        response['HX-Redirect'] = f'/product/{product.pk}/?updated=1'
+        return response
+
+    return render(request, "core/product_form.html", {
+        "product": product,
+        "category_list": categories,
+        "edit_mode": True
+    })
+
+def category_detail_view(request, name):
+    category = get_object_or_404(Category, name=name)
+    return render(request, "core/category_detail.html", {"category": category})
+
+
+@csrf_protect
+def category_edit_view(request, name):
+    category = get_object_or_404(Category, name=name)
+    categories = Category.objects.exclude(name=category.name)
+
+    context = {
+        "category_list": categories,
+        "edit_mode": True,
+        "category": category
+    }
+
+    if request.method == "POST":
+        # name = request.POST.get("name")  ← ya no usamos esto
+        parent_name = request.POST.get("parent")
+        parent = Category.objects.filter(name=parent_name).first() if parent_name else None
+
+        category.parent = parent
+        category.save()
+
+        response = HttpResponse()
+        response['HX-Redirect'] = f"/category/{category.name}/?updated=1"
+        return response
+
+    return render(request, "core/category_form.html", context)
+
+@require_POST
+@csrf_protect
+def category_delete_view(request, name):
+    category = get_object_or_404(Category, name=name)
+    category.delete()
+    return redirect("/category/list/?deleted=1")

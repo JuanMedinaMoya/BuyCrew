@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="text-2xl font-semibold mb-4">
+  {% if edit_mode %}Editar Categoría{% else %}Crear Categoría{% endif %}
+</h2>
+
+<form 
+  method="POST" 
+  class="space-y-4" 
+  hx-post="{% if edit_mode %}/category/{{ category.name }}/edit/{% else %}/category/create/{% endif %}" 
+  hx-target="body" 
+  hx-swap="outerHTML"
+>
+  {% csrf_token %}
+    {% if edit_mode %}
+    <input 
+        type="text" 
+        name="name" 
+        value="{{ category.name }}" 
+        class="w-full p-2 border rounded bg-gray-100 text-gray-500 cursor-not-allowed" 
+        readonly
+        title="El nombre de la categoría no se puede modificar"
+    >
+    <p class="text-sm text-gray-500">* El nombre no puede modificarse una vez creada la categoría.</p>
+
+    {% else %}
+    <input 
+        type="text" 
+        name="name" 
+        placeholder="Nombre de la categoría" 
+        class="w-full p-2 border rounded" 
+        required
+    >
+    {% endif %}
+
+    <br>
+  <label for="parent">Categoría Padre (opcional):</label>
+  <select name="parent" class="w-full p-2 border rounded">
+    <option value="">-- Sin padre --</option>
+    {% for c in category_list %}
+      <option value="{{ c.name }}" {% if category.parent and category.parent.name == c.name %}selected{% endif %}>
+        {{ c.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+    {% if edit_mode %}Actualizar{% else %}Guardar{% endif %}
+  </button>
+
+  {% if error %}
+    <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">
+        {{ error }}
+    </div>
+  {% endif %}
+
+  {% if success %}
+    <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">
+        {{ success }}
+    </div>
+  {% endif %}
+</form>
+
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+{% if request.GET.updated %}
+  <div id="update-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
+    ✅ Categoría actualizada correctamente.
+  </div>
+  <script>
+    setTimeout(() => {
+      const banner = document.getElementById("update-banner");
+      if (banner) {
+        banner.style.opacity = "0";
+        setTimeout(() => banner.remove(), 500);
+      }
+    }, 2000);
+  </script>
+{% endif %}
+<h2 class="text-2xl font-bold mb-4">{{ category.name }}</h2>
+
+{% if category.parent %}
+  <p class="text-gray-700 mb-2">Categoría padre: <strong>{{ category.parent.name }}</strong></p>
+{% endif %}
+
+<h3 class="text-xl font-semibold mt-6 mb-2">Productos en esta categoría:</h3>
+<ul class="space-y-1">
+  {% for product in category.products.all %}
+    <li class="border p-2 rounded bg-white">
+      <a href="{% url 'product_detail' product.pk %}" class="text-blue-600 hover:underline">{{ product.name }}</a>
+    </li>
+  {% empty %}
+    <li class="text-gray-500">No hay productos en esta categoría.</li>
+  {% endfor %}
+</ul>
+
+{% if user.is_staff %}
+  <a href="{% url 'category_edit' category.name %}" class="mt-6 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+    ✏️ Editar Categoría
+  </a>
+  <form 
+    action="{% url 'category_delete' category.name %}" 
+    method="POST" 
+    class="inline-block ml-2"
+    onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?');"
+  >
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+        🗑️ Eliminar Categoría
+    </button>
+  </form>
+
+{% endif %}
+
+
+{% endblock %}

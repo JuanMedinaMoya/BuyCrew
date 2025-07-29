@@ -1,11 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="text-2xl font-semibold mb-4">Lista de Products</h2>
+{% if request.GET.deleted %}
+  <div id="delete-banner" class="mb-4 p-4 bg-red-100 text-red-800 border border-red-300 rounded transition-opacity duration-500">
+    🗑️ Producto eliminado correctamente.
+  </div>
+  <script>
+    setTimeout(() => {
+      const banner = document.getElementById("delete-banner");
+      if (banner) {
+        banner.style.opacity = "0";
+        setTimeout(() => banner.remove(), 500);
+      }
+    }, 2000);
+  </script>
+{% endif %}
+
+<h2 class="text-2xl font-semibold mb-4">Lista de Productos</h2>
+
 <ul class="bg-white rounded shadow divide-y divide-gray-200">
   {% for item in items %}
-    <li class="p-4">{{ item }}</li>
+    <li class="p-4 hover:bg-gray-50 transition">
+      <a href="{% url 'product_detail' item.pk %}" class="text-blue-600 hover:underline">
+        {{ item.name }} — {{ item.price }} €
+      </a>
+    </li>
   {% empty %}
-    <li class="p-4 text-gray-500">No hay products registrados.</li>
+    <li class="p-4 text-gray-500">No hay productos registrados.</li>
   {% endfor %}
 </ul>
 {% endblock %}
