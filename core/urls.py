@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CartViewSet, ProductView, UserView, UserRegister, UserLogin, UserLogout, GroupViewSet, CategoryViewSet
+from .views import CartViewSet, ProductView, UserView, UserRegister, UserLogin, UserLogout, GroupViewSet, CategoryViewSet, EventTypeViewSet
 
 
 router = DefaultRouter()
@@ -8,6 +8,7 @@ router.register(r'cart', CartViewSet)
 router.register(r'product', ProductView)
 router.register(r'groups', GroupViewSet)
 router.register(r'category', CategoryViewSet)
+router.register(r'event-type', EventTypeViewSet)
 # router.register(r'login', UserLogin)
 # router.register(r'register', UserRegister)
 # router.register(r'user', UserView)

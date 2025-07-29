@@ -9,6 +9,9 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2, help_text="Precio del producto")
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en el inventario")
     categories = models.ManyToManyField(Category, related_name='products')
+    ratio_consumo = models.FloatField(
+        help_text="Cuántas unidades de este producto consume una persona promedio en un día. Ej: 1.0 = 1 unidad por persona por día."
+    )
 
     def __str__(self):
         return self.name

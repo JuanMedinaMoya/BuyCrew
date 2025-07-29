@@ -4,3 +4,4 @@ from .cart_product import CartProduct
 from .user import UserAccount
 from .group import Group
 from .category import Category
+from .event_type import EventType
