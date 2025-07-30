@@ -284,12 +284,14 @@ def group_detail_view(request, pk):
     all_users = UserAccount.objects.exclude(id=request.user.id)
     active_cart = group.carts.filter(active=True).first()
     past_carts = group.carts.filter(active=False).order_by('-id')
+    past_orders = Order.objects.filter(group=group).order_by('-created_at')
 
     return render(request, "core/group_detail.html", {
         "group": group,
         "all_users": all_users,
         "active_cart": active_cart,
-        "past_carts": past_carts
+        "past_carts": past_carts,
+        "past_orders": past_orders
     })
 
 @csrf_protect
