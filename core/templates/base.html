@@ -2,41 +2,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>BuyCrew</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+  <meta charset="UTF-8">
+  <title>BuyCrew</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.2"></script>
 
-    <!-- HTMX + CSRF -->
-    <script>
-        document.body?.addEventListener('htmx:configRequest', function (event) {
-            const csrftoken = getCookie('csrftoken');
-            if (csrftoken) {
-                event.detail.headers['X-CSRFToken'] = csrftoken;
-            }
-        });
+  <!-- HTMX + CSRF -->
+  <script>
+    document.body?.addEventListener('htmx:configRequest', function (event) {
+      const csrftoken = getCookie('csrftoken');
+      if (csrftoken) {
+        event.detail.headers['X-CSRFToken'] = csrftoken;
+      }
+    });
 
-        function getCookie(name) {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + '=')) {
-                    return decodeURIComponent(cookie.substring(name.length + 1));
-                }
-            }
-            return null;
+    function getCookie(name) {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.startsWith(name + '=')) {
+          return decodeURIComponent(cookie.substring(name.length + 1));
         }
-    </script>
+      }
+      return null;
+    }
+  </script>
 </head>
 <body class="bg-gray-100 text-gray-900">
 
-    <div id="navbar" hx-get="/api/v1/user/" hx-trigger="load" hx-swap="outerHTML">
-        <div class="bg-white shadow px-6 py-4 text-center">Cargando navbar...</div>
-    </div>
+  <!-- Navbar -->
+  <div id="navbar" hx-get="/api/v1/user/" hx-trigger="load" hx-swap="outerHTML">
+    <div class="bg-white shadow px-6 py-4 text-center">Cargando navbar...</div>
+  </div>
 
-    <div class="mx-auto">
-        {% block content %}{% endblock %}
-    </div>
+  <!-- Layout -->
+  <div class="flex">
+    
+    <!-- Sidebar -->
+    {% if user.is_authenticated and user.is_staff %}
+    <aside class="hidden md:block w-64 bg-white shadow h-screen sticky top-0">
+        <nav class="p-6">
+            <ul class="space-y-2 text-gray-700 text-base font-medium">
+
+                <li>
+                    <a href="/product/list/"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+                            {% if request.path == '/product/list/' %}
+                                bg-blue-100 text-blue-700 font-semibold
+                            {% else %}
+                                hover:bg-blue-50 hover:text-blue-600
+                            {% endif %}">
+                    📦 <span>Productos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/category/list/"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+                            {% if request.path == '/category/list/' %}
+                                bg-blue-100 text-blue-700 font-semibold
+                            {% else %}
+                                hover:bg-blue-50 hover:text-blue-600
+                            {% endif %}">
+                    🗂️ <span>Categorías</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/group/list/"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+                            {% if request.path == '/group/list/' %}
+                                bg-blue-100 text-blue-700 font-semibold
+                            {% else %}
+                                hover:bg-blue-50 hover:text-blue-600
+                            {% endif %}">
+                    👥 <span>Grupos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/event_type/list/"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
+                            {% if request.path == '/event_type/list/' %}
+                                bg-blue-100 text-blue-700 font-semibold
+                            {% else %}
+                                hover:bg-blue-50 hover:text-blue-600
+                            {% endif %}">
+                    🎉 <span>Eventos</span>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </aside>
+    {% endif %}
+
+    <!-- Main content -->
+    <main class="flex-grow p-6">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
 
 </body>
 </html>
