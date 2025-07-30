@@ -1,6 +1,20 @@
 <nav id="navbar" class="bg-white shadow px-6 py-4 flex justify-between items-center">
     <a href="/" class="text-xl font-bold text-blue-600 hover:underline">BuyCrew</a>
-    <div class="flex items-center space-x-4">
+  
+    <div class="flex items-center space-x-6">
+      <a href="{% url 'order_list' %}" class="text-gray-700 hover:text-blue-600 flex items-center space-x-1">
+        <span>🧾</span>
+        <span class="text-sm hidden md:inline">Pedidos</span>
+      </a>          
+      <a href="/group/list/" class="relative group">
+        <span class="text-2xl">🛒</span>
+        {% if carritos_por_grupo %}
+          <span class="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-yellow-400 border border-white animate-ping"></span>
+          <span class="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-yellow-400 border border-white"></span>
+        {% endif %}
+      </a>
+  
+      <div class="flex items-center space-x-4">
         <span class="text-gray-700">Hola, {{ user.name }}</span>
         <form 
             hx-post="/api/v1/logout/" 
@@ -12,5 +26,7 @@
                 Logout
             </button>
         </form>
+      </div>
     </div>
-</nav>
+  </nav>
+  

@@ -23,7 +23,7 @@
   <div class="bg-yellow-100 p-4 rounded mt-6">
     <h3 class="text-lg font-bold mb-2 text-yellow-800">🛒 Carrito de la compra activo</h3>
     <p>Puedes modificar el pedido actual.</p>
-    <a href="{% url 'cart_detail' active_cart.pk %}" class="mt-2 inline-block bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
+    <a href="{% url 'cart_edit' active_cart.pk %}" class="mt-2 inline-block bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700">
       👉 Ver carrito
     </a>
   </div>
@@ -34,6 +34,23 @@
     </a>
   </div>
 {% endif %}
+{% if user == group.creator %}
+  <div class="mt-6 p-4 bg-blue-50 border border-blue-300 rounded">
+    <h3 class="text-lg font-semibold text-blue-800 mb-2">Invitación al grupo</h3>
+
+    {% if group.invite_code %}
+      <p class="text-blue-700 mb-2">Código de invitación: <strong>{{ group.invite_code }}</strong></p>
+    {% else %}
+      <form method="POST" action="{% url 'generate_invite_code' group.pk %}">
+        {% csrf_token %}
+        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          🔗 Generar código de invitación
+        </button>
+      </form>
+    {% endif %}
+  </div>
+{% endif %}
+
 
 
 {% if user.is_staff %}

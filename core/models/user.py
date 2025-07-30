@@ -47,3 +47,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     
     def __str__(self):
         return self.get_full_name()
+
+    @property
+    def groups_joined(self):
+        return self.groups.all()

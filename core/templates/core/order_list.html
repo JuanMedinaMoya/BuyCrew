@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded shadow mt-10">
+  <h2 class="text-2xl font-bold mb-4">🧾 Tus Pedidos</h2>
+
+  {% if orders %}
+    <ul class="divide-y divide-gray-200">
+      {% for order in orders %}
+        <li class="py-3 flex justify-between items-center">
+          <div>
+            <p><strong>{{ order.group.name }}</strong> - {{ order.created_at|date:"d/m/Y H:i" }}</p>
+            <p class="text-sm text-gray-500">Total: {{ order.total_price|floatformat:2 }} €</p>
+          </div>
+          <a href="{% url 'order_detail' order.pk %}" class="text-blue-600 hover:underline">Ver</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500">Aún no has realizado ningún pedido.</p>
+  {% endif %}
+</div>
+{% endblock %}

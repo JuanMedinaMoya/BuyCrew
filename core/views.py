@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from .models import Cart, Product, UserAccount, Group, CartProduct, Category, EventType
+from .models import Cart, Product, UserAccount, Group, CartProduct, Category, EventType, Order, OrderItem
 from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializer, UserLoginSerializer, UserSerializer, GroupSerializer, CategorySerializer, EventTypeSerializer
 # from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -72,10 +72,18 @@ class UserView(APIView):
         context.update(csrf(request))
 
         if request.user.is_authenticated:
+            carritos_por_grupo = []
+            for group in request.user.groups_in.all():
+                carrito = group.carts.filter(active=True).first()
+                if carrito:
+                    carritos_por_grupo.append((group.name, carrito.id, carrito.pk))
+            context['carritos_por_grupo'] = carritos_por_grupo
+
             html = render_to_string("core/navbar_authenticated.html", context)
         else:
             html = render_to_string("core/navbar_anonymous.html")
         return HttpResponse(html)
+
 
 
 class CartViewSet(viewsets.ModelViewSet):
@@ -157,7 +165,19 @@ def register_view(request):
 
 def home_view(request):
     models = ['product', 'category', 'group', 'event_type']
-    return render(request, "core/home.html", {"models": models})
+    carritos_por_grupo = []
+
+    if request.user.is_authenticated:
+        for group in request.user.groups_in.all():
+            carrito = group.carts.filter(active=True).first()
+            if carrito:
+                carritos_por_grupo.append((group.name, carrito.id, carrito.pk))
+
+    return render(request, "core/home.html", {
+        "models": models,
+        "carritos_por_grupo": carritos_por_grupo,
+    })
+
 
 @csrf_protect
 def product_create_view(request):
@@ -236,10 +256,20 @@ def group_create_view(request):
 
 def group_list_view(request):
     if request.user.is_staff:
-        items = Group.objects.all()
+        groups = Group.objects.all()
     else:
-        items = Group.objects.filter(members=request.user)
-    return render(request, "core/group_list.html", {"items": items})
+        groups = Group.objects.filter(members=request.user)
+
+    grupos_con_carrito = set()
+    for group in groups:
+        if group.carts.filter(active=True).exists():
+            grupos_con_carrito.add(group.pk)
+
+    return render(request, "core/group_list.html", {
+        "items": groups,
+        "grupos_con_carrito": grupos_con_carrito
+    })
+
 
 
 def group_detail_view(request, pk):
@@ -486,8 +516,27 @@ def add_product_to_cart_view(request, cart_id, product_id):
     cp.quantity = 1 if created else cp.quantity + 1
     cp.save()
 
-    request.GET = request.POST.copy()
-    return cart_edit_view(request, cart_id)
+    query = request.POST.get("q", "")
+    category_id = request.POST.get("category", "")
+
+    products = Product.objects.all()
+    if query:
+        products = products.filter(name__icontains=query)
+    if category_id:
+        products = products.filter(categories__name=category_id)
+
+    cart_items = {cp.product.id: cp.quantity for cp in CartProduct.objects.filter(cart=cart)}
+    total_price = sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart))
+    categories = Category.objects.all()
+
+    return render(request, "core/fragments/product_search_list.html", {
+        "products": products,
+        "cart": cart,
+        "cart_items": cart_items,
+        "categories": categories,
+        "total_price": total_price,
+    })
+
 
 
 @require_POST
@@ -501,8 +550,26 @@ def remove_product_from_cart_view(request, cart_id, product_id):
         cp.quantity -= 1
         cp.save() if cp.quantity > 0 else cp.delete()
 
-    request.GET = request.POST.copy()
-    return cart_edit_view(request, cart_id)
+    query = request.POST.get("q", "")
+    category_id = request.POST.get("category", "")
+
+    products = Product.objects.all()
+    if query:
+        products = products.filter(name__icontains=query)
+    if category_id:
+        products = products.filter(categories__name=category_id)
+
+    cart_items = {cp.product.id: cp.quantity for cp in CartProduct.objects.filter(cart=cart)}
+    total_price = sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart))
+    categories = Category.objects.all()
+
+    return render(request, "core/fragments/product_search_list.html", {
+        "products": products,
+        "cart": cart,
+        "cart_items": cart_items,
+        "categories": categories,
+        "total_price": total_price,
+    })
 
 
 def cart_edit_view(request, pk):
@@ -520,19 +587,77 @@ def cart_edit_view(request, pk):
         products = products.filter(categories__name=category_id)
 
     cart_items = {cp.product.id: cp.quantity for cp in CartProduct.objects.filter(cart=cart)}
+    total_price = sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart))
     categories = Category.objects.all()
 
-    if request.headers.get("Hx-Request"):  # HTMX fragment
-        return render(request, "core/fragments/product_search_list.html", {
-            "products": products,
-            "cart": cart,
-            "cart_items": cart_items,
-        })
-
-    return render(request, "core/cart_edit.html", {
+    context = {
         "cart": cart,
         "group": cart.group,
         "products": products,
         "categories": categories,
-        "cart_items": cart_items
-    })
+        "cart_items": cart_items,
+        "total_price": total_price
+    }
+
+    if request.headers.get("Hx-Request"):
+        return render(request, "core/fragments/product_search_list.html", context)
+
+    return render(request, "core/cart_edit.html", context)
+
+
+@require_POST
+@csrf_protect
+def generate_invite_code_view(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+
+    if request.user != group.creator:
+        return HttpResponseForbidden("No tienes permiso para generar el código.")
+
+    if not group.invite_code:
+        group.save()
+
+    return redirect('group_detail', pk=group.pk)
+
+
+@require_POST
+@csrf_protect
+def order_create_view(request, cart_id):
+    cart = get_object_or_404(Cart, pk=cart_id)
+
+    if request.user not in cart.group.members.all():
+        return HttpResponseForbidden()
+
+    direccion = request.POST.get("direccion", "").strip()
+    if not direccion:
+        return HttpResponse("Debes especificar una dirección de envío.", status=400)
+
+    order = Order.objects.create(
+        group=cart.group,
+        created_by=request.user,
+        total_price=sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart)),
+        direccion=direccion,
+    )
+
+    for cp in cart.cartproduct_set.all():
+        OrderItem.objects.create(
+            order=order,
+            product=cp.product,
+            quantity=cp.quantity,
+            price=cp.product.price,
+        )
+
+    cart.active = False
+    cart.save()
+
+    return redirect('order_detail', order.pk)
+
+def order_detail_view(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    if request.user not in order.group.members.all():
+        return HttpResponseForbidden("No tienes permiso para ver este pedido.")
+
+    return render(request, "core/order_detail.html", {"order": order})
+
+def order_list_view(request):
+    orders = Order.objects.filter(created_by=request.user).order_by('-created_at')
+    return render(request, "core/order_list.html", {"orders": orders})
