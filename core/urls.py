@@ -9,7 +9,11 @@ from .views import (
     group_create_view, group_list_view,
     event_type_create_view, event_type_list_view,
     product_detail, product_edit, category_detail_view,
-    category_edit_view, product_delete, category_delete_view
+    category_edit_view, product_delete, category_delete_view,
+    group_detail_view, group_edit_view, group_delete_view,
+    event_type_detail_view, event_type_edit_view, event_type_delete_view,
+    group_join_view, cart_create_view, cart_detail_view,
+    cart_edit_view, add_product_to_cart_view, remove_product_from_cart_view
 )
 
 
@@ -37,15 +41,28 @@ urlpatterns = [
     path('product/create/', product_create_view, name='product_create'),
     path('product/list/', product_list_view, name='product_list_view'),
     path('product/<int:pk>/delete/', product_delete, name='product_delete'),
+    path('product/<int:pk>/', product_detail, name='product_detail'),
+    path('product/<int:pk>/edit/', product_edit, name='product_edit'),
     path('category/create/', category_create_view),
     path('category/list/', category_list_view),
     path('group/create/', group_create_view),
     path('group/list/', group_list_view),
+    path('group/<int:pk>/', group_detail_view, name='group_detail'),
+    path('group/<int:pk>/edit/', group_edit_view, name='group_edit'),
+    path('group/<int:pk>/delete/', group_delete_view, name='group_delete'),
+    path('group/join/', group_join_view, name='group_join'),
     path('event_type/create/', event_type_create_view),
     path('event_type/list/', event_type_list_view),
-    path('product/<int:pk>/', product_detail, name='product_detail'),
-    path('product/<int:pk>/edit/', product_edit, name='product_edit'),
+    path('event_type/<str:name>/', event_type_detail_view, name='event_type_detail'),
+    path('event_type/<str:name>/edit/', event_type_edit_view, name='event_type_edit'),
+    path('event_type/<str:name>/delete/', event_type_delete_view, name='event_type_delete'),
     path('category/<str:name>/', category_detail_view, name='category_detail'),
     path('category/<str:name>/edit/', category_edit_view, name='category_edit'),
     path('category/<str:name>/delete/', category_delete_view, name='category_delete'),
+    path('cart/create/<int:group_id>/', cart_create_view, name='cart_create'),
+    path('cart/<int:pk>/', cart_detail_view, name='cart_detail'),
+    path("cart/<int:pk>/edit/", cart_edit_view, name="cart_edit"),
+    path("cart/<int:cart_id>/add/<int:product_id>/", add_product_to_cart_view, name="cart_add_item"),
+    path("cart/<int:cart_id>/remove/<int:product_id>/", remove_product_from_cart_view, name="cart_remove_item"),
+
 ]

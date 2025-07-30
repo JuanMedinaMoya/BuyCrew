@@ -7,17 +7,33 @@
 </div>
 
 {% if user.is_authenticated %}
-  <h3 class="text-xl font-bold mt-8 mb-4">Gestión de elementos</h3>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    {% for model in models %}
+  {% if user.is_staff %}
+    <h3 class="text-xl font-bold mt-8 mb-4">Gestión de elementos (Admin)</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for model in models %}
+        <div class="bg-white p-6 rounded shadow">
+          <h4 class="text-lg font-semibold mb-2">{{ model|capfirst }}</h4>
+          <a href="/{{ model }}/create/" class="text-blue-600 hover:underline block mb-1">➕ Crear {{ model }}</a>
+          <a href="/{{ model }}/list/" class="text-blue-600 hover:underline">📋 Ver lista de {{ model }}s</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <h3 class="text-xl font-bold mt-8 mb-4">Bienvenido, {{ user.name }}</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-white p-6 rounded shadow">
-        <h4 class="text-lg font-semibold mb-2">{{ model|capfirst }}</h4>
-        <a href="/{{ model }}/create/" class="text-blue-600 hover:underline block mb-1">➕ Crear {{ model }}</a>
-        <a href="/{{ model }}/list/" class="text-blue-600 hover:underline">📋 Ver lista de {{ model }}s</a>
+        <h4 class="text-lg font-semibold mb-2">Grupos</h4>
+        <a href="/group/list/" class="block text-blue-600 hover:underline mb-1">📋 Ver mis grupos</a>
+        <a href="/group/create/" class="block text-blue-600 hover:underline">➕ Crear nuevo grupo</a>
+        <a href="/group/join/" class="block text-blue-600 hover:underline mt-2">🔑 Acceder a grupo por código</a>
       </div>
-    {% endfor %}
-  </div>
+
+      <div class="bg-white p-6 rounded shadow">
+        <h4 class="text-lg font-semibold mb-2">Carritos</h4>
+        <a href="/cart/user/" class="block text-blue-600 hover:underline">🛒 Ver carritos por grupo</a>
+      </div>
+    </div>
+  {% endif %}
 {% endif %}
 
 {% endblock %}

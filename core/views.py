@@ -15,7 +15,7 @@ from rest_framework.decorators import action
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_list_or_404
@@ -203,19 +203,170 @@ def product_delete(request, pk):
     product.delete()
     return redirect("/product/list/?deleted=1")
 
+
+@csrf_protect
 def group_create_view(request):
-    return render(request, "core/group_form.html")
+    context = {"event_type_list": EventType.objects.all()}
+
+    if request.method == "POST":
+        name = request.POST.get("name")
+        people_count = request.POST.get("people_count")
+        duration_days = request.POST.get("duration_days")
+        preferences = request.POST.get("preferences")
+        restrictions = request.POST.get("restrictions")
+        event_type_id = request.POST.get("event_type")
+        high_consume = bool(request.POST.get("high_consume"))
+
+        event_type = EventType.objects.filter(id=event_type_id).first() if event_type_id else None
+
+        group = Group.objects.create(
+            name=name,
+            creator=request.user,
+            people_count=people_count,
+            duration_days=duration_days,
+            preferences=preferences,
+            restrictions=restrictions,
+            event_type=event_type,
+            high_consume=high_consume,
+        )
+        group.members.add(request.user)
+        context["success"] = "✅ Grupo creado correctamente"
+
+    return render(request, "core/group_form.html", context)
 
 def group_list_view(request):
-    items = Group.objects.all()
+    if request.user.is_staff:
+        items = Group.objects.all()
+    else:
+        items = Group.objects.filter(members=request.user)
     return render(request, "core/group_list.html", {"items": items})
 
+
+def group_detail_view(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+    all_users = UserAccount.objects.exclude(id=request.user.id)
+
+    # obtener carrito activo si existe
+    active_cart = group.carts.filter(active=True).first()
+    past_carts = group.carts.filter(active=False).order_by('-id')
+
+    return render(request, "core/group_detail.html", {
+        "group": group,
+        "all_users": all_users,
+        "active_cart": active_cart,
+        "past_carts": past_carts
+    })
+
+
+@csrf_protect
+def group_edit_view(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+    event_types = EventType.objects.all()
+
+    if request.method == "POST":
+        group.people_count = request.POST.get("people_count")
+        group.duration_days = request.POST.get("duration_days")
+        group.preferences = request.POST.get("preferences")
+        group.restrictions = request.POST.get("restrictions")
+        group.high_consume = bool(request.POST.get("high_consume"))
+
+        event_type_id = request.POST.get("event_type")
+        group.event_type = EventType.objects.filter(id=event_type_id).first() if event_type_id else None
+        group.save()
+
+        response = HttpResponse()
+        response['HX-Redirect'] = f'/group/{group.pk}/?updated=1'
+        return response
+
+    return render(request, "core/group_form.html", {
+        "group": group,
+        "event_type_list": event_types,
+        "edit_mode": True
+    })
+
+@csrf_protect
+def group_join_view(request):
+    context = {}
+    if request.method == "POST":
+        code = request.POST.get("invite_code", "").strip().upper()
+        group = Group.objects.filter(invite_code=code).first()
+
+        if not group:
+            context["error"] = "❌ Código inválido."
+        elif request.user in group.members.all():
+            context["error"] = "⚠️ Ya formas parte de este grupo."
+        else:
+            group.members.add(request.user)
+            context["success"] = f"✅ Te has unido a '{group.name}' correctamente."
+
+    return render(request, "core/group_join.html", context)
+
+
+@require_POST
+@csrf_protect
+def group_delete_view(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+    group.delete()
+    return redirect("/group/list/?deleted=1")
+
+@csrf_protect
 def event_type_create_view(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        alcoholic = bool(request.POST.get("alcoholic"))
+        beer_friendly = bool(request.POST.get("beer_friendly"))
+
+        if EventType.objects.filter(name=name).exists():
+            return render(request, "core/event_type_form.html", {
+                "error": "Ese nombre ya existe."
+            })
+
+        EventType.objects.create(
+            name=name,
+            description=description,
+            alcoholic=alcoholic,
+            beer_friendly=beer_friendly
+        )
+        return render(request, "core/event_type_form.html", {
+            "success": "✅ Tipo de evento creado correctamente"
+        })
+
     return render(request, "core/event_type_form.html")
 
 def event_type_list_view(request):
     items = EventType.objects.all()
     return render(request, "core/event_type_list.html", {"items": items})
+
+def event_type_detail_view(request, name):
+    event = get_object_or_404(EventType, name=name)
+    return render(request, "core/event_type_detail.html", {"event": event})
+
+@csrf_protect
+def event_type_edit_view(request, name):
+    event = get_object_or_404(EventType, name=name)
+
+    if request.method == "POST":
+        event.description = request.POST.get("description")
+        event.alcoholic = bool(request.POST.get("alcoholic"))
+        event.beer_friendly = bool(request.POST.get("beer_friendly"))
+        event.save()
+
+        response = HttpResponse()
+        response['HX-Redirect'] = f'/event_type/{event.name}/?updated=1'
+        return response
+
+    return render(request, "core/event_type_form.html", {
+        "event": event,
+        "edit_mode": True
+    })
+
+@require_POST
+@csrf_protect
+def event_type_delete_view(request, name):
+    event = get_object_or_404(EventType, name=name)
+    event.delete()
+    return redirect("/event_type/list/?deleted=1")
 
 @csrf_protect
 def category_create_view(request):
@@ -300,3 +451,88 @@ def category_delete_view(request, name):
     category = get_object_or_404(Category, name=name)
     category.delete()
     return redirect("/category/list/?deleted=1")
+
+@csrf_protect
+def cart_create_view(request, group_id):
+    group = get_object_or_404(Group, pk=group_id)
+
+    if request.user not in group.members.all():
+        return HttpResponseForbidden("No perteneces a este grupo.")
+
+    group.carts.filter(active=True).update(active=False)
+
+    cart = Cart.objects.create(group=group, active=True)
+    return redirect('cart_detail', pk=cart.pk)
+
+def cart_detail_view(request, pk):
+    cart = get_object_or_404(Cart, pk=pk)
+    if request.user not in cart.group.members.all():
+        return HttpResponseForbidden("No puedes ver este carrito.")
+
+    return render(request, "core/cart_detail.html", {
+        "cart": cart,
+        "group": cart.group
+    })
+
+
+@require_POST
+def add_product_to_cart_view(request, cart_id, product_id):
+    cart = get_object_or_404(Cart, pk=cart_id)
+    if request.user not in cart.group.members.all():
+        return HttpResponseForbidden()
+
+    product = get_object_or_404(Product, pk=product_id)
+    cp, created = CartProduct.objects.get_or_create(cart=cart, product=product)
+    cp.quantity = 1 if created else cp.quantity + 1
+    cp.save()
+
+    request.GET = request.POST.copy()
+    return cart_edit_view(request, cart_id)
+
+
+@require_POST
+def remove_product_from_cart_view(request, cart_id, product_id):
+    cart = get_object_or_404(Cart, pk=cart_id)
+    if request.user not in cart.group.members.all():
+        return HttpResponseForbidden()
+
+    cp = CartProduct.objects.filter(cart=cart, product_id=product_id).first()
+    if cp:
+        cp.quantity -= 1
+        cp.save() if cp.quantity > 0 else cp.delete()
+
+    request.GET = request.POST.copy()
+    return cart_edit_view(request, cart_id)
+
+
+def cart_edit_view(request, pk):
+    cart = get_object_or_404(Cart, pk=pk)
+    if request.user not in cart.group.members.all():
+        return HttpResponseForbidden("No perteneces a este grupo")
+
+    query = request.GET.get("q", "")
+    category_id = request.GET.get("category", "")
+
+    products = Product.objects.all()
+    if query:
+        products = products.filter(name__icontains=query)
+    if category_id:
+        products = products.filter(categories__name=category_id)
+
+    cart_items = {cp.product.id: cp.quantity for cp in CartProduct.objects.filter(cart=cart)}
+    categories = Category.objects.all()
+
+    if request.headers.get("Hx-Request"):  # HTMX fragment
+        return render(request, "core/fragments/product_search_list.html", {
+            "products": products,
+            "cart": cart,
+            "cart_items": cart_items,
+        })
+
+    return render(request, "core/cart_edit.html", {
+        "cart": cart,
+        "group": cart.group,
+        "products": products,
+        "categories": categories,
+        "cart_items": cart_items
+    })

@@ -1,0 +1,36 @@
+{% load custom_filters %}
+{% for product in products %}
+  <div class="flex justify-between items-center border-b py-2">
+    <div>
+      <strong>{{ product.name }}</strong>
+    </div>
+    <div class="flex items-center space-x-2">
+      <form method="POST"
+            hx-post="{% url 'cart_add_item' cart.pk product.pk %}"
+            hx-target="#product-list"
+            hx-swap="innerHTML"
+            hx-trigger="click"
+            hx-include="[name='q'], [name='category']"
+            class="inline">
+        {% csrf_token %}
+        <button type="button" class="bg-green-600 text-white px-3 py-1 rounded">+</button>
+      </form>
+
+      {% if product.id in cart_items %}
+      <form method="POST"
+            hx-post="{% url 'cart_remove_item' cart.pk product.pk %}"
+            hx-target="#product-list"
+            hx-swap="innerHTML"
+            hx-trigger="click"
+            hx-include="[name='q'], [name='category']"
+            class="inline">
+        {% csrf_token %}
+        <button type="button" class="bg-red-600 text-white px-3 py-1 rounded">−</button>
+      </form>
+        <span class="text-sm text-gray-600">Cantidad: {{ cart_items|get_item:product.id }}</span>
+      {% endif %}
+    </div>
+  </div>
+{% empty %}
+  <p class="text-gray-500">No hay productos que coincidan.</p>
+{% endfor %}

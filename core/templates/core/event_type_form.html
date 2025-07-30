@@ -1,0 +1,19 @@
+{# event_type_form.html #}
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-2xl font-semibold mb-4">{% if edit_mode %}Editar Tipo Evento{% else %}Crear Tipo Evento{% endif %}</h2>
+<form method="POST" class="space-y-4">
+  {% csrf_token %}
+  {% if success %}<div class="bg-green-100 text-green-700 px-4 py-2 rounded">{{ success }}</div>{% endif %}
+  {% if error %}<div class="bg-red-100 text-red-700 px-4 py-2 rounded">{{ error }}</div>{% endif %}
+
+  <input type="text" name="name" placeholder="Nombre del evento" class="w-full p-2 border rounded" required value="{{ event.name|default:'' }}" {% if edit_mode %}readonly{% endif %}>
+  <textarea name="description" placeholder="Descripción" class="w-full p-2 border rounded">{{ event.description|default:'' }}</textarea>
+  <label><input type="checkbox" name="alcoholic" {% if event.alcoholic %}checked{% endif %}> Alcohol</label><br>
+  <label><input type="checkbox" name="beer_friendly" {% if event.beer_friendly %}checked{% endif %}> Amigable con cerveza</label><br>
+
+  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+    {% if edit_mode %}Actualizar{% else %}Guardar{% endif %}
+  </button>
+</form>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.db import models
 from .user import UserAccount
 from .event_type import EventType
+import uuid
 
 class Group(models.Model):
     name = models.CharField(max_length=100)
@@ -13,6 +14,12 @@ class Group(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     event_type = models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True, blank=True)
     high_consume = models.BooleanField(default=False)
+    invite_code = models.CharField(max_length=10, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.invite_code:
+            self.invite_code = uuid.uuid4().hex[:10].upper()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded shadow mt-10">
+  <h2 class="text-2xl font-bold mb-4">Editar carrito de {{ group.name }}</h2>
+
+  <div class="flex space-x-4 mb-6">
+    <input
+      type="text"
+      name="q"
+      id="product-search"
+      placeholder="Buscar producto..."
+      class="w-full p-2 border rounded"
+      value="{{ request.GET.q }}"
+      hx-get="{% url 'cart_edit' cart.pk %}"
+      hx-trigger="keyup changed delay:300ms"
+      hx-target="#product-list"
+      hx-include="[name='q'], [name='category']"
+    >
+
+    <select
+      name="category"
+      id="category-filter"
+      class="p-2 border rounded"
+      hx-get="{% url 'cart_edit' cart.pk %}"
+      hx-trigger="change"
+      hx-target="#product-list"
+      hx-include="[name='q'], [name='category']"
+    >
+      <option value="">Todas las categorías</option>
+      {% for c in categories %}
+        <option value="{{ c.name }}" {% if request.GET.category == c.name|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="product-list">
+    {% include "core/fragments/product_search_list.html" %}
+  </div>
+</div>
+{% endblock %}

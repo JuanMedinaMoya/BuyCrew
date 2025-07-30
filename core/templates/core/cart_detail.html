@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="bg-white p-6 rounded shadow max-w-3xl mx-auto mt-10">
+  <h2 class="text-2xl font-bold mb-4">Carrito de {{ group.name }}</h2>
+
+  <div class="flex space-x-4 mb-6">
+    <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed" disabled>
+      🤖 Automatizar pedido (próximamente)
+    </button>
+    <a href="{% url 'cart_edit' cart.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      ✏️ Editar carrito manualmente
+    </a>
+  </div>
+
+  {% if cart_items %}
+    <h3 class="text-xl font-semibold mb-2">Productos en el carrito:</h3>
+    <ul class="divide-y divide-gray-200">
+      {% for item in cart_items %}
+        <li class="py-2 flex justify-between items-center">
+          <span>{{ item.product.name }}</span>
+          <span class="text-gray-600">{{ item.quantity }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-600">Aún no hay productos en este carrito.</p>
+  {% endif %}
+</div>
+{% endblock %}

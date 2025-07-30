@@ -3,7 +3,9 @@ from .group import Group
 from .product import Product  # Esto no genera un problema circular.
 
 class Cart(models.Model):
-    group = models.OneToOneField(Group, on_delete=models.CASCADE, related_name="cart")
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="carts")
+    active = models.BooleanField(default=True)
+    locked = models.BooleanField(default=False) 
     cart_items = models.ManyToManyField(Product, through='CartProduct')
 
     def __str__(self):
