@@ -256,27 +256,32 @@ def group_create_view(request):
 
 def group_list_view(request):
     if request.user.is_staff:
-        groups = Group.objects.all()
+        all_groups = Group.objects.all()
     else:
-        groups = Group.objects.filter(members=request.user)
+        all_groups = Group.objects.filter(members=request.user)
+
+    creador_groups = all_groups.filter(creator=request.user)
+    miembro_groups = all_groups.exclude(creator=request.user)
 
     grupos_con_carrito = set()
-    for group in groups:
+    for group in all_groups:
         if group.carts.filter(active=True).exists():
             grupos_con_carrito.add(group.pk)
 
     return render(request, "core/group_list.html", {
-        "items": groups,
+        "creador_groups": creador_groups,
+        "miembro_groups": miembro_groups,
         "grupos_con_carrito": grupos_con_carrito
     })
 
 
-
+@csrf_protect
 def group_detail_view(request, pk):
     group = get_object_or_404(Group, pk=pk)
-    all_users = UserAccount.objects.exclude(id=request.user.id)
+    if request.user not in group.members.all():
+        return HttpResponseForbidden("No tienes acceso a este grupo.")
 
-    # obtener carrito activo si existe
+    all_users = UserAccount.objects.exclude(id=request.user.id)
     active_cart = group.carts.filter(active=True).first()
     past_carts = group.carts.filter(active=False).order_by('-id')
 
@@ -286,7 +291,6 @@ def group_detail_view(request, pk):
         "active_cart": active_cart,
         "past_carts": past_carts
     })
-
 
 @csrf_protect
 def group_edit_view(request, pk):
@@ -577,6 +581,9 @@ def cart_edit_view(request, pk):
     if request.user not in cart.group.members.all():
         return HttpResponseForbidden("No perteneces a este grupo")
 
+    if not cart.active:
+        return HttpResponseForbidden("Este carrito ya ha sido completado.")
+
     query = request.GET.get("q", "")
     category_id = request.GET.get("category", "")
 
@@ -653,7 +660,7 @@ def order_create_view(request, cart_id):
 
 def order_detail_view(request, pk):
     order = get_object_or_404(Order, pk=pk)
-    if request.user not in order.group.members.all():
+    if request.user not in order.group.members.all() and request.user != order.group.creator:
         return HttpResponseForbidden("No tienes permiso para ver este pedido.")
 
     return render(request, "core/order_detail.html", {"order": order})

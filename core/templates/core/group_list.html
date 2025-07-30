@@ -1,11 +1,12 @@
-{# group_list.html #}
 {% extends "base.html" %}
 {% block content %}
-<ul class="bg-white rounded shadow divide-y divide-gray-200">
-    {% for item in items %}
+
+{% if creador_groups %}
+  <h2 class="text-xl font-bold mb-2">Creador:</h2>
+  <ul class="bg-white rounded shadow divide-y divide-gray-200 mb-6">
+    {% for item in creador_groups %}
       <li class="p-4 hover:bg-gray-50 flex items-center justify-between">
         <a href="{% url 'group_detail' item.pk %}" class="text-blue-600 hover:underline">{{ item.name }}</a>
-  
         {% if item.pk in grupos_con_carrito %}
           <span class="relative ml-2">
             <span class="absolute inline-flex h-3 w-3 rounded-full bg-yellow-400 opacity-75 animate-ping"></span>
@@ -13,9 +14,29 @@
           </span>
         {% endif %}
       </li>
-    {% empty %}
-      <li class="p-4 text-gray-500">No perteneces a ningún grupo.</li>
     {% endfor %}
   </ul>
-  
+{% endif %}
+
+{% if miembro_groups %}
+  <h2 class="text-xl font-bold mb-2">Miembro:</h2>
+  <ul class="bg-white rounded shadow divide-y divide-gray-200">
+    {% for item in miembro_groups %}
+      <li class="p-4 hover:bg-gray-50 flex items-center justify-between">
+        <a href="{% url 'group_detail' item.pk %}" class="text-blue-600 hover:underline">{{ item.name }}</a>
+        {% if item.pk in grupos_con_carrito %}
+          <span class="relative ml-2">
+            <span class="absolute inline-flex h-3 w-3 rounded-full bg-yellow-400 opacity-75 animate-ping"></span>
+            <span class="relative inline-flex h-3 w-3 rounded-full bg-yellow-400"></span>
+          </span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+{% if not creador_groups and not miembro_groups %}
+  <p class="text-gray-500">No perteneces a ningún grupo.</p>
+{% endif %}
+
 {% endblock %}
