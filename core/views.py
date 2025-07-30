@@ -1,3 +1,4 @@
+import json
 from rest_framework import viewsets
 from .models import Cart, Product, UserAccount, Group, CartProduct, Category, EventType, Order, OrderItem
 from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializer, UserLoginSerializer, UserSerializer, GroupSerializer, CategorySerializer, EventTypeSerializer
@@ -21,6 +22,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_list_or_404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
+from .utils.ai_cart_generator import generate_cart_with_gpt
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserAccount.objects.all()
@@ -132,26 +134,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         users = UserAccount.objects.filter(id__in=user_ids)
         group.members.add(*users)
         return Response({"detail": "Usuarios invitados correctamente"}, status=200)
-
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
-    def generate_cart(self, request, pk=None):
-        group = self.get_object()
-
-        if request.user not in group.members.all():
-            return Response({"detail": "No tienes permiso"}, status=403)
-
-        # Create or reset the cart
-        Cart.objects.filter(group=group).delete()
-        cart = Cart.objects.create(group=group)
-
-        # Dummy logic: add some products
-        sample_products = Product.objects.all()[:5]
-        for product in sample_products:
-            CartProduct.objects.create(cart=cart, product=product, quantity=1)
-
-        return Response({"detail": "Carrito generado automáticamente"}, status=200)
     
-
 class EventTypeViewSet(viewsets.ModelViewSet):
     queryset = EventType.objects.all()
     serializer_class = EventTypeSerializer
@@ -670,3 +653,42 @@ def order_detail_view(request, pk):
 def order_list_view(request):
     orders = Order.objects.filter(created_by=request.user).order_by('-created_at')
     return render(request, "core/order_list.html", {"orders": orders})
+
+@require_POST
+@csrf_protect
+def generate_cart_view(request, pk):
+    group = get_object_or_404(Cart, pk=pk).group
+    if request.user not in group.members.all():
+        return JsonResponse({"detail": "No tienes permiso"}, status=403)
+
+    group_data = {
+        "people_count": group.people_count,
+        "duration_days": group.duration_days,
+        "preferences": group.preferences,
+        "restrictions": group.restrictions,
+    }
+
+    products = Product.objects.all()
+    product_list = "\n".join([f"{p.name}, ratio: {p.ratio_consumo}" for p in products])
+
+    try:
+        cart_items =  generate_cart_with_gpt(group_data, product_list)
+
+        Cart.objects.filter(group=group).delete()
+        cart = Cart.objects.create(group=group)
+
+        for item in cart_items:
+            product = Product.objects.filter(name=item["name"]).first()
+            if product:
+                CartProduct.objects.create(cart=cart, product=product, quantity=item["quantity"])
+
+        context = {
+            "group": group,
+            "cart": cart,
+            "cart_items": cart.cartproduct_set.select_related("product"),
+        }
+        html = render_to_string("core/cart_detail.html", context, request=request)
+        return HttpResponse(html)
+
+    except Exception as e:
+        return JsonResponse({"detail": f"Error al generar con IA: {str(e)}"}, status=500)

@@ -4,8 +4,14 @@
   <h2 class="text-2xl font-bold mb-4">Carrito de {{ group.name }}</h2>
 
   <div class="flex space-x-4 mb-6">
-    <button class="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed" disabled>
-      🤖 Automatizar pedido (próximamente)
+    <button
+        hx-post="{% url 'cart_generate' cart.pk %}"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+        hx-target="body"
+        hx-swap="outerHTML"
+        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+        🤖 Automatizar pedido
     </button>
     <a href="{% url 'cart_edit' cart.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
       ✏️ Editar carrito manualmente
