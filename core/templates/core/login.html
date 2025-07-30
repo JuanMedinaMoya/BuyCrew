@@ -1,20 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Login</h1>
 
-<form 
-    hx-post="/api/v1/login/" 
-    hx-target="#login-messages" 
-    hx-swap="innerHTML" 
-    class="space-y-4" 
-    method="POST"
->
-  {% csrf_token %}
-  <input type="email" name="email" placeholder="Email" class="w-full p-2 border rounded" required>
-  <input type="password" name="password" placeholder="Contraseña" class="w-full p-2 border rounded" required>
-  <button class="w-full bg-blue-500 text-white py-2 rounded" type="submit">Entrar</button>
-</form>
+<div class="w-screen h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-md">
+    <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Inicia sesión en BuyCrew</h1>
 
-<div id="login-messages" class="mt-4"></div>
+    <form 
+      hx-post="/api/v1/login/" 
+      hx-target="#login-messages" 
+      hx-swap="innerHTML" 
+      method="POST" 
+      class="space-y-4"
+    >
+      {% csrf_token %}
+
+      <input 
+        type="email" 
+        name="email" 
+        placeholder="Correo electrónico" 
+        required 
+        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+
+      <input 
+        type="password" 
+        name="password" 
+        placeholder="Contraseña" 
+        required 
+        class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+
+      <button 
+        type="submit" 
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+      >
+        Entrar
+      </button>
+    </form>
+
+    <div id="login-messages" class="mt-4"></div>
+
+    <p class="text-center text-sm text-gray-500 mt-6">
+      ¿No tienes cuenta? 
+      <a href="/register/" class="text-blue-600 hover:underline font-medium">Regístrate</a>
+    </p>
+  </div>
+</div>
 
 {% endblock %}
