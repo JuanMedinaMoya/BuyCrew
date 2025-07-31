@@ -23,6 +23,7 @@ def generate_cart_with_gpt(group_data, product_list):
     - Preferencias del grupo: {group_data['preferences']}
     - Restricciones alimentarias o de consumo: {group_data['restrictions']}
     - El grupo consume mucha cantidad: {group_data['high_consume']}
+    - Descripcion detallada del plan: {group_data['description']}
 
     Aquí tienes la lista de productos disponibles. Cada línea contiene:
     - Nombre del producto
@@ -37,8 +38,8 @@ def generate_cart_with_gpt(group_data, product_list):
 
     Tu tarea es seleccionar los productos y cantidades adecuadas para satisfacer al grupo durante los días indicados, considerando variedad, raciones razonables, stock disponible, y las preferencias y restricciones indicadas.
     Calcula teniendo en cuenta que si el grupo dura varios dias es para desayuno, comida y cena, las restricciones alimentarias cumplelas por persona, por ejemplo si una persona tiene una restriccion no añadas todos los productos con esa restriccion, solo para esa persona.
-    Lo mas importante es hacer un buen calculo de las cantidades teninedo en cuenta lo que consume una persona promedio.
-
+    Lo es importante hacer un buen calculo de las cantidades teninedo en cuenta lo que consume una persona promedio.
+    La descripcion detallada es lo mas importante ahi el usuario introduce el plan que van a hacer. Ten en cuenta si proporcionan el lugar si tienen horno para hacer pizzas, barbacoa para hacer carne, etc...
     Devuelve exclusivamente una lista en formato JSON con este formato exacto (sin texto adicional):
 
     [

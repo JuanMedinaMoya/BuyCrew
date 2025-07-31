@@ -625,6 +625,7 @@ def generate_cart_view(request, pk):
         "preferences": group.preferences,
         "restrictions": group.restrictions,
         "high_consume": group.high_consume,
+        "description": group.description
     }
 
     products = Product.objects.all()
