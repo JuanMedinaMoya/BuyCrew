@@ -40,7 +40,7 @@
     type="number" 
     step="0.01" 
     name="price" 
-    placeholder="Precio" 
+    placeholder="Precio (€)" 
     class="w-full p-2 border rounded" 
     required 
     value="{{ product.price|default:'' }}"
@@ -55,14 +55,36 @@
     value="{{ product.stock|default:'' }}"
   >
 
+  <textarea 
+    name="description" 
+    placeholder="Descripción del producto" 
+    class="w-full p-2 border rounded"
+  >{{ product.description|default:'' }}</textarea>
+
   <input 
     type="number" 
-    step="0.1" 
-    name="ratio_consumo" 
-    placeholder="Ratio de consumo (por persona/día)" 
+    step="0.01" 
+    name="weight_kg" 
+    placeholder="Peso total del producto (kg)" 
     class="w-full p-2 border rounded" 
-    required 
-    value="{{ product.ratio_consumo|default:'' }}"
+    value="{{ product.weight_kg|default:'' }}"
+  >
+
+  <input 
+    type="number" 
+    name="units" 
+    placeholder="Unidades por pack" 
+    class="w-full p-2 border rounded" 
+    value="{{ product.units|default:'' }}"
+  >
+
+  <input 
+    type="number" 
+    step="0.001" 
+    name="weight_per_unit_kg" 
+    placeholder="Peso por unidad (kg)" 
+    class="w-full p-2 border rounded" 
+    value="{{ product.weight_per_unit_kg|default:'' }}"
   >
 
   <label class="block font-medium mb-2">Categorías:</label>

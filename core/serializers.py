@@ -46,9 +46,23 @@ class CartSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
+    estimated_weight_per_unit = serializers.SerializerMethodField()
+    estimated_total_weight = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = [
+            "id", "name", "price", "stock", "categories",
+            "weight_kg", "units", "weight_per_unit_kg", "description",
+            "estimated_weight_per_unit", "estimated_total_weight"
+        ]
+
+    def get_estimated_weight_per_unit(self, obj):
+        return obj.estimated_weight_per_unit
+
+    def get_estimated_total_weight(self, obj):
+        return obj.estimated_total_weight
+
 
 class GroupSerializer(serializers.ModelSerializer):
     members = serializers.PrimaryKeyRelatedField(

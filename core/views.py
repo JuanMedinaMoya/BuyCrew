@@ -170,8 +170,15 @@ def product_create_view(request):
         name = request.POST.get("name")
         price = request.POST.get("price")
         stock = request.POST.get("stock")
-        ratio = request.POST.get("ratio_consumo")
+        description = request.POST.get("description") or ""
+        weight_kg = request.POST.get("weight_kg") or None
+        units = request.POST.get("units") or None
+        weight_per_unit_kg = request.POST.get("weight_per_unit_kg") or None
         categories = request.POST.getlist("categories")
+
+        weight_kg = float(weight_kg) if weight_kg else None
+        units = int(units) if units else None
+        weight_per_unit_kg = float(weight_per_unit_kg) if weight_per_unit_kg else None
 
         if not categories:
             context["error"] = "Debes seleccionar al menos una categoría."
@@ -180,7 +187,10 @@ def product_create_view(request):
                 name=name,
                 price=price,
                 stock=stock,
-                ratio_consumo=ratio
+                description=description,
+                weight_kg=weight_kg or None,
+                units=units or None,
+                weight_per_unit_kg=weight_per_unit_kg or None
             )
             product.categories.set(categories)
             context["success"] = "✅ Producto creado correctamente"
@@ -418,10 +428,20 @@ def product_edit(request, pk):
         product.name = request.POST.get("name")
         product.price = request.POST.get("price")
         product.stock = request.POST.get("stock")
-        product.ratio_consumo = request.POST.get("ratio_consumo")
+        product.description = request.POST.get("description")
+
+        # Conversión segura a float/int si están presentes
+        weight_kg = request.POST.get("weight_kg")
+        units = request.POST.get("units")
+        weight_per_unit_kg = request.POST.get("weight_per_unit_kg")
+
+        product.weight_kg = float(weight_kg) if weight_kg else None
+        product.units = int(units) if units else None
+        product.weight_per_unit_kg = float(weight_per_unit_kg) if weight_per_unit_kg else None
+
+        product.save()
 
         category_ids = request.POST.getlist("categories")
-        product.save()
         product.categories.set(category_ids)
 
         response = HttpResponse()
