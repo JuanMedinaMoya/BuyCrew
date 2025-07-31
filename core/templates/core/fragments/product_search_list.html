@@ -87,13 +87,26 @@
       <p class="text-lg font-semibold mb-4">
         Total: <span class="text-green-700">{{ total_price|floatformat:2 }} €</span>
       </p>
+      {% if request.user == cart.group.creator or request.user.is_staff %}
       <form method="POST" action="{% url 'order_create' cart.pk %}" class="space-y-4">
-        {% csrf_token %}
-        <input type="text" name="direccion" placeholder="📦 Dirección de envío" class="w-full p-2 border rounded" required>
-        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
-          ✅ Completar pedido
-        </button>
-      </form>
+          {% csrf_token %}
+          <input type="text" name="direccion" placeholder="📦 Dirección de envío" class="w-full p-2 border rounded" required>
+          <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+            ✅ Completar pedido
+          </button>
+        </form>
+      {% else %}
+        <div class="space-y-2">
+          <input type="text" name="direccion" placeholder="📦 Dirección de envío" class="w-full p-2 border rounded" disabled>
+          <button 
+            class="w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed" 
+            title="Solo el creador del grupo o un administrador puede completar el pedido"
+            disabled
+          >
+            Completar Pedido
+          </button>
+        </div>
+      {% endif %}
       <form method="POST" action="{% url 'cart_clear' cart.pk %}" class="mt-2">
         {% csrf_token %}
         <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded">

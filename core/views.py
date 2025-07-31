@@ -160,6 +160,8 @@ def home_view(request):
 
 @csrf_protect
 def product_create_view(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Solo los administradores pueden realizar esta acción.")
     context = {"category_list": Category.objects.all()}
 
     if request.method == "POST":
@@ -210,6 +212,8 @@ def product_detail(request, pk):
 @require_POST
 @csrf_protect
 def product_delete(request, pk):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Solo los administradores pueden realizar esta acción.")
     product = get_object_or_404(Product, pk=pk)
     product.delete()
     return redirect("/product/list/?deleted=1")
@@ -217,6 +221,10 @@ def product_delete(request, pk):
 
 @csrf_protect
 def group_create_view(request):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
     context = {}
 
     if request.method == "POST":
@@ -287,6 +295,8 @@ def group_detail_view(request, pk):
 def group_edit_view(request, pk):
     group = get_object_or_404(Group, pk=pk)
 
+    if request.user != group.creator and not request.user.is_staff:
+        return HttpResponseForbidden("Solo el creador o un administrador puede editar este grupo.")
     if request.method == "POST":
         group.people_count = request.POST.get("people_count")
         group.duration_days = request.POST.get("duration_days")
@@ -333,6 +343,10 @@ def group_delete_view(request, pk):
 
 @csrf_protect
 def category_create_view(request):
+
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Solo los administradores pueden modificar categorías.")
+
     context = {"category_list": Category.objects.all()}
 
     if request.method == "POST":
@@ -355,6 +369,8 @@ def category_list_view(request):
 
 @csrf_protect
 def product_edit(request, pk):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Solo los administradores pueden realizar esta acción.")
     product = get_object_or_404(Product, pk=pk)
     categories = Category.objects.all()
 
@@ -398,6 +414,9 @@ def category_detail_view(request, name):
 
 @csrf_protect
 def category_edit_view(request, name):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Solo los administradores pueden modificar categorías.")
+
     category = get_object_or_404(Category, name=name)
     categories = Category.objects.exclude(name=category.name)
 
@@ -424,6 +443,9 @@ def category_edit_view(request, name):
 @require_POST
 @csrf_protect
 def category_delete_view(request, name):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("Solo los administradores pueden modificar categorías.")
+
     category = get_object_or_404(Category, name=name)
     category.delete()
     return redirect("/category/list/?deleted=1")
@@ -580,6 +602,9 @@ def generate_invite_code_view(request, pk):
 def order_create_view(request, cart_id):
     cart = get_object_or_404(Cart, pk=cart_id)
 
+    if request.user != cart.group.creator and not request.user.is_staff:
+        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
+
     if request.user not in cart.group.members.all():
         return HttpResponseForbidden()
 
@@ -622,6 +647,10 @@ def order_list_view(request):
 @csrf_protect
 def generate_cart_view(request, pk):
     group = get_object_or_404(Cart, pk=pk).group
+
+    if request.user != group.creator and not request.user.is_staff:
+        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
+
     if request.user not in group.members.all():
         return JsonResponse({"detail": "No tienes permiso"}, status=403)
 
