@@ -554,7 +554,13 @@ def cart_edit_view(request, pk):
 
     return render(request, "core/cart_edit.html", context)
 
-
+@csrf_protect
+def cart_clear(request, pk):
+    cart = get_object_or_404(Cart, pk=pk)
+    if request.method == 'POST':
+        CartProduct.objects.filter(cart=cart).delete()
+        return redirect('cart_edit', pk=pk)
+    
 @require_POST
 @csrf_protect
 def generate_invite_code_view(request, pk):

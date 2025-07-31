@@ -1,43 +1,107 @@
 {% load custom_filters %}
 
-{% for product in products %}
-  <div class="flex justify-between items-center border-b py-2">
-    <div>
-      <strong>{{ product.name }}</strong>
-    </div>
-    <div class="flex items-center space-x-2">
-      <!-- Botón de añadir -->
-      <form method="POST"
-            hx-post="{% url 'cart_add_item' cart.pk product.pk %}"
-            hx-target="#product-list"
-            hx-swap="innerHTML"
-            hx-include="[name='q'], [name='category']"
-            class="inline">
-        {% csrf_token %}
-        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">+</button>
-      </form>
+<div class="flex gap-6">
+  <!-- Listado de productos -->
+  <div class="w-3/4 max-h-[700px] overflow-y-auto pr-2">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+      {% for product in products %}
+        <div class="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col justify-between">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-32 w-full object-cover rounded mb-3">
+          {% else %}
+            <div class="h-32 w-full bg-gray-200 rounded mb-3 flex items-center justify-center text-gray-400 text-sm">
+              Sin imagen
+            </div>
+          {% endif %}
 
-      {% if product.id in cart_items %}
-      <!-- Botón de quitar -->
-      <form method="POST"
-            hx-post="{% url 'cart_remove_item' cart.pk product.pk %}"
-            hx-target="#product-list"
-            hx-swap="innerHTML"
-            hx-include="[name='q'], [name='category']"
-            class="inline">
-        {% csrf_token %}
-        <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded">−</button>
-      </form>
-        <span class="text-sm text-gray-600">Cantidad: {{ cart_items|get_item:product.id }}</span>
-      {% endif %}
+          <div class="mb-4">
+            <h3 class="font-semibold text-gray-800 text-sm mb-1 truncate">{{ product.name }}</h3>
+            <p class="text-sm text-gray-600">{{ product.price|floatformat:2 }} €</p>
+          </div>
+
+          <div class="flex items-center justify-center gap-3 mt-auto">
+            {% if product.id in cart_items %}
+              <form method="POST"
+                    hx-post="{% url 'cart_remove_item' cart.pk product.pk %}"
+                    hx-target="#product-list"
+                    hx-swap="innerHTML"
+                    hx-include="[name='q'], [name='category']"
+                    class="inline">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white rounded-full w-9 h-9 flex items-center justify-center text-xl shadow">
+                  &minus;
+                </button>
+              </form>
+            {% endif %}
+
+            {% if cart_items|get_item:product.id %}
+              <span class="text-sm font-semibold text-gray-800 min-w-[2ch] text-center">
+                {{ cart_items|get_item:product.id }}
+              </span>
+            {% endif %}
+
+            <form method="POST"
+                  hx-post="{% url 'cart_add_item' cart.pk product.pk %}"
+                  hx-target="#product-list"
+                  hx-swap="innerHTML"
+                  hx-include="[name='q'], [name='category']"
+                  class="inline">
+              {% csrf_token %}
+              <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-full w-9 h-9 flex items-center justify-center text-xl shadow">
+                +
+              </button>
+            </form>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-gray-500 col-span-full">No hay productos que coincidan.</p>
+      {% endfor %}
     </div>
   </div>
-{% empty %}
-  <p class="text-gray-500">No hay productos que coincidan.</p>
-{% endfor %}
 
-<div class="mt-6 text-right border-t pt-4" id="cart-total">
-  <p class="text-lg font-semibold text-gray-700">
-    💰 Total actual: <span class="text-green-700">{{ total_price|floatformat:2 }} €</span>
-  </p>
+  <!-- Resumen del carrito -->
+  <div class="w-1/4 bg-white rounded-lg shadow p-6 sticky top-10 h-fit">
+    <h3 class="text-lg font-bold mb-4">🛒 Tu pedido</h3>
+    {% if cart_items %}
+      <ul class="space-y-3 mb-4 text-sm text-gray-700">
+        {% for product in products %}
+          {% if product.id in cart_items %}
+            <li class="flex justify-between">
+              <div class="items-start">
+                <p class="font-medium truncate">{{ product.name }}</p>
+                <p class="text-xs text-gray-500">x{{ cart_items|get_item:product.id }} &middot; {{ product.price|floatformat:2 }} €</p>
+              </div>
+              <div class="items-end">
+                {% with quantity=cart_items|get_item:product.id %}
+                  {% with total=product.price|multiply:quantity %}
+                    <div class="items-end font-semibold text-gray-800">
+                      {{ total|floatformat:2 }} €
+                    </div>
+                  {% endwith %}
+                {% endwith %}
+              </div>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+      <p class="text-lg font-semibold mb-4">
+        Total: <span class="text-green-700">{{ total_price|floatformat:2 }} €</span>
+      </p>
+      <form method="POST" action="{% url 'order_create' cart.pk %}" class="space-y-4">
+        {% csrf_token %}
+        <input type="text" name="direccion" placeholder="📦 Dirección de envío" class="w-full p-2 border rounded" required>
+        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
+          ✅ Completar pedido
+        </button>
+      </form>
+      <form method="POST" action="{% url 'cart_clear' cart.pk %}" class="mt-2">
+        {% csrf_token %}
+        <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded">
+          🗑️ Vaciar carrito
+        </button>
+      </form>
+    {% else %}
+      <p class="text-gray-500">No hay productos añadidos.</p>
+    {% endif %}
+  </div>
 </div>
