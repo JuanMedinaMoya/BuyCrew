@@ -17,6 +17,13 @@
         </form>
       {% endif %}
     </div>
+
+    <!-- Botón editar grupo -->
+    <div class="absolute top-6 left-6">
+      <a href="{% url 'group_edit' group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
+        ✏️ Editar grupo
+      </a>
+    </div>
   {% endif %}
 
   <!-- Tarjeta de información del grupo -->

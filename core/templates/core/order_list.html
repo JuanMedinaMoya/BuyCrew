@@ -1,22 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white p-6 rounded shadow mt-10">
-  <h2 class="text-2xl font-bold mb-4">🧾 Tus Pedidos</h2>
+<div class="max-w-3xl mx-auto px-4 py-10 space-y-6">
+  <h2 class="text-2xl font-bold text-blue-800">🧾 Tus Pedidos</h2>
 
   {% if orders %}
-    <ul class="divide-y divide-gray-200">
-      {% for order in orders %}
-        <li class="py-3 flex justify-between items-center">
-          <div>
-            <p><strong>{{ order.group.name }}</strong> - {{ order.created_at|date:"d/m/Y H:i" }}</p>
-            <p class="text-sm text-gray-500">Total: {{ order.total_price|floatformat:2 }} €</p>
-          </div>
-          <a href="{% url 'order_detail' order.pk %}" class="text-blue-600 hover:underline">Ver</a>
-        </li>
-      {% endfor %}
-    </ul>
+    {% for order in orders %}
+      <div class="bg-white hover:bg-blue-50 border border-gray-200 rounded-xl shadow p-4 flex justify-between items-center transition">
+        <div>
+          <h3 class="font-semibold text-blue-700">{{ order.group.name }}</h3>
+          <p class="text-sm text-gray-600">{{ order.created_at|date:"d/m/Y H:i" }}</p>
+          <p class="text-sm text-gray-500">Total: {{ order.total_price|floatformat:2 }} €</p>
+        </div>
+        <a href="{% url 'order_detail' order.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow">Ver</a>
+      </div>
+    {% endfor %}
   {% else %}
-    <p class="text-gray-500">Aún no has realizado ningún pedido.</p>
+    <p class="text-gray-500 text-center">Aún no has realizado ningún pedido.</p>
   {% endif %}
 </div>
 {% endblock %}

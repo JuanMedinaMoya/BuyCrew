@@ -299,7 +299,7 @@ def group_edit_view(request, pk):
 
         response = HttpResponse()
         response['HX-Redirect'] = f'/group/{group.pk}/?updated=1'
-        return response
+        return redirect('group_detail', pk=group.pk)
 
     return render(request, "core/group_form.html", {
         "group": group,
