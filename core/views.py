@@ -674,8 +674,10 @@ def generate_cart_view(request, pk):
     try:
         cart_items =  generate_cart_with_gpt(group_data, product_list)
 
-        Cart.objects.filter(group=group).delete()
-        cart = Cart.objects.create(group=group)
+        cart = Cart.objects.get(pk=pk)
+
+        if CartProduct.objects.filter(cart=cart).exists():
+            CartProduct.objects.filter(cart=cart).delete()
 
         for item in cart_items:
             product = Product.objects.filter(name=item["name"]).first()
