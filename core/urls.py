@@ -2,18 +2,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
-from .views import CartViewSet, ProductView, UserView, UserRegister, UserLogin, UserLogout, GroupViewSet, CategoryViewSet, EventTypeViewSet
+from .views import CartViewSet, ProductView, UserView, UserRegister, UserLogin, UserLogout, GroupViewSet, CategoryViewSet
 from .views import login_view, register_view, home_view
 from .views import (
     home_view, login_view, register_view,
     product_create_view, product_list_view,
     category_create_view, category_list_view,
     group_create_view, group_list_view,
-    event_type_create_view, event_type_list_view,
     product_detail, product_edit, category_detail_view,
     category_edit_view, product_delete, category_delete_view,
     group_detail_view, group_edit_view, group_delete_view,
-    event_type_detail_view, event_type_edit_view, event_type_delete_view,
     group_join_view, cart_create_view, cart_detail_view,
     cart_edit_view, add_product_to_cart_view, remove_product_from_cart_view,
     generate_invite_code_view, order_create_view, order_detail_view,
@@ -27,7 +25,6 @@ router.register(r'cart', CartViewSet)
 router.register(r'product', ProductView)
 router.register(r'groups', GroupViewSet)
 router.register(r'category', CategoryViewSet)
-router.register(r'event-type', EventTypeViewSet)
 # router.register(r'login', UserLogin)
 # router.register(r'register', UserRegister)
 # router.register(r'user', UserView)
@@ -55,11 +52,6 @@ urlpatterns = [
     path('group/<int:pk>/edit/', group_edit_view, name='group_edit'),
     path('group/<int:pk>/delete/', group_delete_view, name='group_delete'),
     path('group/join/', group_join_view, name='group_join'),
-    path('event_type/create/', event_type_create_view),
-    path('event_type/list/', event_type_list_view),
-    path('event_type/<str:name>/', event_type_detail_view, name='event_type_detail'),
-    path('event_type/<str:name>/edit/', event_type_edit_view, name='event_type_edit'),
-    path('event_type/<str:name>/delete/', event_type_delete_view, name='event_type_delete'),
     path('category/<str:name>/', category_detail_view, name='category_detail'),
     path('category/<str:name>/edit/', category_edit_view, name='category_edit'),
     path('category/<str:name>/delete/', category_delete_view, name='category_delete'),

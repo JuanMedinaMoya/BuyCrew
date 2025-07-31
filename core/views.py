@@ -1,7 +1,7 @@
 import json
 from rest_framework import viewsets
-from .models import Cart, Product, UserAccount, Group, CartProduct, Category, EventType, Order, OrderItem
-from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializer, UserLoginSerializer, UserSerializer, GroupSerializer, CategorySerializer, EventTypeSerializer
+from .models import Cart, Product, UserAccount, Group, CartProduct, Category, Order, OrderItem
+from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializer, UserLoginSerializer, UserSerializer, GroupSerializer, CategorySerializer
 # from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication
@@ -135,10 +135,6 @@ class GroupViewSet(viewsets.ModelViewSet):
         group.members.add(*users)
         return Response({"detail": "Usuarios invitados correctamente"}, status=200)
     
-class EventTypeViewSet(viewsets.ModelViewSet):
-    queryset = EventType.objects.all()
-    serializer_class = EventTypeSerializer
-    permission_classes = [IsAuthenticated]
 
 def login_view(request):
     return render(request, "core/login.html")
@@ -147,7 +143,7 @@ def register_view(request):
     return render(request, "core/register.html")
 
 def home_view(request):
-    models = ['product', 'category', 'group', 'event_type']
+    models = ['product', 'category', 'group']
     carritos_por_grupo = []
 
     if request.user.is_authenticated:
@@ -221,7 +217,7 @@ def product_delete(request, pk):
 
 @csrf_protect
 def group_create_view(request):
-    context = {"event_type_list": EventType.objects.all()}
+    context = {}
 
     if request.method == "POST":
         name = request.POST.get("name")
@@ -229,10 +225,7 @@ def group_create_view(request):
         duration_days = request.POST.get("duration_days")
         preferences = request.POST.get("preferences")
         restrictions = request.POST.get("restrictions")
-        event_type_id = request.POST.get("event_type")
         high_consume = bool(request.POST.get("high_consume"))
-
-        event_type = EventType.objects.filter(id=event_type_id).first() if event_type_id else None
 
         group = Group.objects.create(
             name=name,
@@ -241,7 +234,6 @@ def group_create_view(request):
             duration_days=duration_days,
             preferences=preferences,
             restrictions=restrictions,
-            event_type=event_type,
             high_consume=high_consume,
         )
         group.members.add(request.user)
@@ -292,7 +284,6 @@ def group_detail_view(request, pk):
 @csrf_protect
 def group_edit_view(request, pk):
     group = get_object_or_404(Group, pk=pk)
-    event_types = EventType.objects.all()
 
     if request.method == "POST":
         group.people_count = request.POST.get("people_count")
@@ -301,8 +292,6 @@ def group_edit_view(request, pk):
         group.restrictions = request.POST.get("restrictions")
         group.high_consume = bool(request.POST.get("high_consume"))
 
-        event_type_id = request.POST.get("event_type")
-        group.event_type = EventType.objects.filter(id=event_type_id).first() if event_type_id else None
         group.save()
 
         response = HttpResponse()
@@ -311,7 +300,6 @@ def group_edit_view(request, pk):
 
     return render(request, "core/group_form.html", {
         "group": group,
-        "event_type_list": event_types,
         "edit_mode": True
     })
 
@@ -339,65 +327,6 @@ def group_delete_view(request, pk):
     group = get_object_or_404(Group, pk=pk)
     group.delete()
     return redirect("/group/list/?deleted=1")
-
-@csrf_protect
-def event_type_create_view(request):
-    if request.method == "POST":
-        name = request.POST.get("name")
-        description = request.POST.get("description")
-        alcoholic = bool(request.POST.get("alcoholic"))
-        beer_friendly = bool(request.POST.get("beer_friendly"))
-
-        if EventType.objects.filter(name=name).exists():
-            return render(request, "core/event_type_form.html", {
-                "error": "Ese nombre ya existe."
-            })
-
-        EventType.objects.create(
-            name=name,
-            description=description,
-            alcoholic=alcoholic,
-            beer_friendly=beer_friendly
-        )
-        return render(request, "core/event_type_form.html", {
-            "success": "✅ Tipo de evento creado correctamente"
-        })
-
-    return render(request, "core/event_type_form.html")
-
-def event_type_list_view(request):
-    items = EventType.objects.all()
-    return render(request, "core/event_type_list.html", {"items": items})
-
-def event_type_detail_view(request, name):
-    event = get_object_or_404(EventType, name=name)
-    return render(request, "core/event_type_detail.html", {"event": event})
-
-@csrf_protect
-def event_type_edit_view(request, name):
-    event = get_object_or_404(EventType, name=name)
-
-    if request.method == "POST":
-        event.description = request.POST.get("description")
-        event.alcoholic = bool(request.POST.get("alcoholic"))
-        event.beer_friendly = bool(request.POST.get("beer_friendly"))
-        event.save()
-
-        response = HttpResponse()
-        response['HX-Redirect'] = f'/event_type/{event.name}/?updated=1'
-        return response
-
-    return render(request, "core/event_type_form.html", {
-        "event": event,
-        "edit_mode": True
-    })
-
-@require_POST
-@csrf_protect
-def event_type_delete_view(request, name):
-    event = get_object_or_404(EventType, name=name)
-    event.delete()
-    return redirect("/event_type/list/?deleted=1")
 
 @csrf_protect
 def category_create_view(request):
@@ -693,7 +622,6 @@ def generate_cart_view(request, pk):
         "preferences": group.preferences,
         "restrictions": group.restrictions,
         "high_consume": group.high_consume,
-        "event_type": group.event_type.name if group.event_type else ""
     }
 
     products = Product.objects.all()

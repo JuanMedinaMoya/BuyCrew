@@ -23,7 +23,6 @@ def generate_cart_with_gpt(group_data, product_list):
     - Preferencias del grupo: {group_data['preferences']}
     - Restricciones alimentarias o de consumo: {group_data['restrictions']}
     - El grupo consume mucha cantidad: {group_data['high_consume']}
-    - Tipo de evento: {group_data['event_type']}
 
     Aquí tienes la lista de productos disponibles. Cada línea contiene:
     - Nombre del producto
