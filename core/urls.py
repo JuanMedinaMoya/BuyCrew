@@ -1,4 +1,6 @@
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from .views import CartViewSet, ProductView, UserView, UserRegister, UserLogin, UserLogout, GroupViewSet, CategoryViewSet, EventTypeViewSet
 from .views import login_view, register_view, home_view
@@ -72,3 +74,7 @@ urlpatterns = [
     path('order/<int:pk>/', order_detail_view, name='order_detail'),
     path('orders/', order_list_view, name='order_list'),
 ]
+
+
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

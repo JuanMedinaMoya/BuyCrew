@@ -175,6 +175,7 @@ def product_create_view(request):
         units = request.POST.get("units") or None
         weight_per_unit_kg = request.POST.get("weight_per_unit_kg") or None
         categories = request.POST.getlist("categories")
+        image = request.FILES.get("image")
 
         weight_kg = float(weight_kg) if weight_kg else None
         units = int(units) if units else None
@@ -190,7 +191,8 @@ def product_create_view(request):
                 description=description,
                 weight_kg=weight_kg or None,
                 units=units or None,
-                weight_per_unit_kg=weight_per_unit_kg or None
+                weight_per_unit_kg=weight_per_unit_kg or None,
+                image=image
             )
             product.categories.set(categories)
             context["success"] = "✅ Producto creado correctamente"
@@ -429,6 +431,9 @@ def product_edit(request, pk):
         product.price = request.POST.get("price")
         product.stock = request.POST.get("stock")
         product.description = request.POST.get("description")
+        image = request.FILES.get("image")
+        if image:
+            product.image = image
 
         # Conversión segura a float/int si están presentes
         weight_kg = request.POST.get("weight_kg")
@@ -687,18 +692,22 @@ def generate_cart_view(request, pk):
         "duration_days": group.duration_days,
         "preferences": group.preferences,
         "restrictions": group.restrictions,
+        "high_consume": group.high_consume,
+        "event_type": group.event_type.name if group.event_type else ""
     }
 
     products = Product.objects.all()
-    product_list = "\n".join([f"{p.name}, ratio: {p.ratio_consumo}" for p in products])
+    product_list = "\n".join([
+        f"- {p.name}: precio={p.price}€, stock={p.stock}, peso_total={p.weight_kg or 'N/A'}kg, unidades={p.units or 'N/A'}, peso/unidad={p.estimated_weight_per_unit or 'N/A'}kg. Descripción: {p.description or 'Sin descripción'}"
+        for p in products
+    ])
 
     try:
-        cart_items =  generate_cart_with_gpt(group_data, product_list)
+        cart_items = generate_cart_with_gpt(group_data, product_list)
 
         cart = Cart.objects.get(pk=pk)
 
-        if CartProduct.objects.filter(cart=cart).exists():
-            CartProduct.objects.filter(cart=cart).delete()
+        CartProduct.objects.filter(cart=cart).delete()
 
         for item in cart_items:
             product = Product.objects.filter(name=item["name"]).first()

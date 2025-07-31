@@ -150,3 +150,6 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # este es el backend básico
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

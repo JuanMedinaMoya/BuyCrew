@@ -10,6 +10,8 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0, help_text="Cantidad disponible en el inventario")
     categories = models.ManyToManyField(Category, related_name='products')
 
+    image = models.ImageField(upload_to='product_images/', blank=True, null=True, help_text="Imagen del producto")
+
     weight_kg = models.FloatField(
         null=True, blank=True,
         help_text="Peso total del paquete del producto (en kilogramos). Ej: 0.5 para 500 gramos"

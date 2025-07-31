@@ -19,6 +19,10 @@
 <h2 class="text-2xl font-bold mb-4">{{ product.name }}</h2>
 
 <ul class="space-y-1 text-gray-700">
+  {% if product.image %}
+    <img src="{{ product.image.url }}" alt="Imagen de {{ product.name }}" class="w-64 mb-4 rounded shadow">
+  {% endif %}
+
   <li><strong>Precio:</strong> {{ product.price }} €</li>
   <li><strong>Stock:</strong> {{ product.stock }}</li>
   <li><strong>Ratio consumo:</strong> {{ product.ratio_consumo }}</li>

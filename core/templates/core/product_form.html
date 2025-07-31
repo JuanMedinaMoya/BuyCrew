@@ -11,6 +11,7 @@
   hx-post="{% if edit_mode %}/product/{{ product.id }}/edit/{% else %}/product/create/{% endif %}" 
   hx-target="body" 
   hx-swap="outerHTML"
+  enctype="multipart/form-data"
   onsubmit="return ensureSelected()"
 >
   {% csrf_token %}
@@ -86,6 +87,8 @@
     class="w-full p-2 border rounded" 
     value="{{ product.weight_per_unit_kg|default:'' }}"
   >
+
+  <input type="file" name="image" accept="image/*" class="w-full p-2 border rounded">
 
   <label class="block font-medium mb-2">Categorías:</label>
   <div class="flex space-x-4">

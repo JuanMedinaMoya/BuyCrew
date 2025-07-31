@@ -15,19 +15,38 @@ client = OpenAI()
 
 def generate_cart_with_gpt(group_data, product_list):
     prompt = f"""
-Dado este grupo:
-- Personas: {group_data['people_count']}
-- Días: {group_data['duration_days']}
-- Preferencias: {group_data['preferences']}
-- Restricciones: {group_data['restrictions']}
+    Actúa como un asistente experto en planificación de compras para grupos. 
 
-Y esta lista de productos (nombre, ratio de consumo por persona/día):
-{product_list}
+    Tienes que crear un carrito óptimo de productos en función del siguiente grupo:
+    - Número de personas: {group_data['people_count']}
+    - Número de días: {group_data['duration_days']}
+    - Preferencias del grupo: {group_data['preferences']}
+    - Restricciones alimentarias o de consumo: {group_data['restrictions']}
+    - El grupo consume mucha cantidad: {group_data['high_consume']}
+    - Tipo de evento: {group_data['event_type']}
 
-Devuelve **únicamente** el carrito como una lista en formato JSON (sin explicaciones). Ejemplo:
-[
-  {{ "name": "Agua", "quantity": 4 }}
-]
+    Aquí tienes la lista de productos disponibles. Cada línea contiene:
+    - Nombre del producto
+    - Precio por unidad (€)
+    - Stock disponible
+    - Peso total del paquete (kg)
+    - Número de unidades por paquete
+    - Peso estimado por unidad (kg)
+    - Descripción del producto
+
+    {product_list}
+
+    Tu tarea es seleccionar los productos y cantidades adecuadas para satisfacer al grupo durante los días indicados, considerando variedad, raciones razonables, stock disponible, y las preferencias y restricciones indicadas.
+    Calcula teniendo en cuenta que si el grupo dura varios dias es para desayuno, comida y cena, las restricciones alimentarias cumplelas por persona, por ejemplo si una persona tiene una restriccion no añadas todos los productos con esa restriccion, solo para esa persona.
+    Lo mas importante es hacer un buen calculo de las cantidades teninedo en cuenta lo que consume una persona promedio.
+
+    Devuelve exclusivamente una lista en formato JSON con este formato exacto (sin texto adicional):
+
+    [
+    {{ "name": "Nombre del producto", "quantity": Número de paquetes a comprar }}
+    ]
+
+    Si no hay datos suficientes para algún cálculo, estima de forma razonable basándote en el resto de información (peso, unidades o descripción). No repitas productos.
     """
 
     response = client.chat.completions.create(
@@ -40,7 +59,6 @@ Devuelve **únicamente** el carrito como una lista en formato JSON (sin explicac
     )
 
     raw = response.choices[0].message.content
-
     cleaned = re.sub(r"```json|```", "", raw).strip()
 
     try:
