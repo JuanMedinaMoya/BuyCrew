@@ -13,6 +13,9 @@ class Group(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     high_consume = models.BooleanField(default=False)
     invite_code = models.CharField(max_length=10, unique=True, blank=True)
+    description = models.TextField( blank=True,
+        help_text="Descripción libre del plan del grupo. Por ejemplo: lo que quieren comer cada día o el tipo de evento"
+    )
 
     def save(self, *args, **kwargs):
         if not self.invite_code:

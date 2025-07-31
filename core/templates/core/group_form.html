@@ -1,34 +1,43 @@
-{# group_form.html #}
 {% extends "base.html" %}
 {% block content %}
-<h2 class="text-2xl font-semibold mb-4">{% if edit_mode %}Editar Grupo{% else %}Crear Grupo{% endif %}</h2>
-<form method="POST" class="space-y-4">
-  {% csrf_token %}
 
-  {% if success %}
-    <div class="bg-green-100 text-green-700 px-4 py-2 rounded mb-4">{{ success }}</div>
-  {% endif %}
-  {% if error %}
-    <div class="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">{{ error }}</div>
-  {% endif %}
+<div class="w-screen min-h-screen flex items-start justify-center pt-20 pb-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white border border-blue-200 p-8 rounded-2xl shadow-2xl">
+    <h1 class="text-2xl font-bold mb-6 text-center text-blue-800">
+      {% if edit_mode %}Editar Grupo{% else %}Crear Grupo{% endif %}
+    </h1>
 
-  <input type="text" name="name" placeholder="Nombre del grupo" class="w-full p-2 border rounded" required value="{{ group.name|default:'' }}" {% if edit_mode %}readonly{% endif %}>
-  <input type="number" name="people_count" placeholder="Número de personas" class="w-full p-2 border rounded" required value="{{ group.people_count|default:'' }}">
-  <input type="number" name="duration_days" placeholder="Duración en días" class="w-full p-2 border rounded" required value="{{ group.duration_days|default:'' }}">
-  <textarea name="preferences" placeholder="Preferencias" class="w-full p-2 border rounded">{{ group.preferences|default:'' }}</textarea>
-  <textarea name="restrictions" placeholder="Restricciones" class="w-full p-2 border rounded">{{ group.restrictions|default:'' }}</textarea>
-  <label><input type="checkbox" name="high_consume" {% if group.high_consume %}checked{% endif %}> Consumo alto</label>
+    <form method="POST" class="space-y-4">
+      {% csrf_token %}
 
-  <label>Tipo de evento:</label>
-  <select name="event_type" class="w-full p-2 border rounded">
-    <option value="">-- Ninguno --</option>
-    {% for ev in event_type_list %}
-      <option value="{{ ev.id }}" {% if group.event_type and group.event_type.id == ev.id %}selected{% endif %}>{{ ev.name }}</option>
-    {% endfor %}
-  </select>
+      {% if success %}
+        <div class="bg-green-100 text-green-700 px-4 py-2 rounded">{{ success }}</div>
+      {% endif %}
+      {% if error %}
+        <div class="bg-red-100 text-red-700 px-4 py-2 rounded">{{ error }}</div>
+      {% endif %}
 
-  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
-    {% if edit_mode %}Actualizar{% else %}Guardar{% endif %}
-  </button>
-</form>
+      <input type="text" name="name" placeholder="Nombre del grupo" required class="w-full p-3 border border-gray-300 rounded-lg" value="{{ group.name|default:'' }}">
+
+      <input type="number" name="people_count" placeholder="Número de personas" required class="w-full p-3 border border-gray-300 rounded-lg" value="{{ group.people_count|default:'' }}">
+
+      <input type="number" name="duration_days" placeholder="Duración en días" required class="w-full p-3 border border-gray-300 rounded-lg" value="{{ group.duration_days|default:'' }}">
+
+      <textarea name="preferences" placeholder="Preferencias" class="w-full p-3 border border-gray-300 rounded-lg">{{ group.preferences|default:'' }}</textarea>
+
+      <textarea name="restrictions" placeholder="Restricciones" class="w-full p-3 border border-gray-300 rounded-lg">{{ group.restrictions|default:'' }}</textarea>
+
+      <textarea name="description" placeholder="Descripción del plan del grupo (qué queréis comer, qué tipo de evento...)" class="w-full p-3 border border-gray-300 rounded-lg">{{ group.description|default:'' }}</textarea>
+
+      <label class="block text-sm">
+        <input type="checkbox" name="high_consume" {% if group.high_consume %}checked{% endif %}> Consumo alto
+      </label>
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+        {% if edit_mode %}Actualizar{% else %}Guardar{% endif %}
+      </button>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

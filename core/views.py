@@ -226,6 +226,7 @@ def group_create_view(request):
         preferences = request.POST.get("preferences")
         restrictions = request.POST.get("restrictions")
         high_consume = bool(request.POST.get("high_consume"))
+        description = request.POST.get("description", "")
 
         group = Group.objects.create(
             name=name,
@@ -235,6 +236,7 @@ def group_create_view(request):
             preferences=preferences,
             restrictions=restrictions,
             high_consume=high_consume,
+            description=description
         )
         group.members.add(request.user)
         context["success"] = "✅ Grupo creado correctamente"
@@ -291,6 +293,7 @@ def group_edit_view(request, pk):
         group.preferences = request.POST.get("preferences")
         group.restrictions = request.POST.get("restrictions")
         group.high_consume = bool(request.POST.get("high_consume"))
+        group.description = request.POST.get("description", "")
 
         group.save()
 
