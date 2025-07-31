@@ -32,10 +32,8 @@
     <div class="bg-white shadow px-6 py-4 text-center">Cargando navbar...</div>
   </div>
 
-  <!-- Layout -->
   <div class="flex">
     
-    <!-- Sidebar -->
     {% if user.is_authenticated and user.is_staff %}
     <aside class="hidden md:block w-64 bg-white shadow h-screen sticky top-0">
         <nav class="p-6">
@@ -81,7 +79,6 @@
     </aside>
     {% endif %}
 
-    <!-- Main content -->
     <main class="flex-grow {% block main_padding %}p-6{% endblock %}">
       {% block content %}{% endblock %}
     </main>

@@ -40,11 +40,16 @@ def generate_cart_with_gpt(group_data, product_list):
     Calcula teniendo en cuenta que si el grupo dura varios dias es para desayuno, comida y cena, las restricciones alimentarias cumplelas por persona, por ejemplo si una persona tiene una restriccion no añadas todos los productos con esa restriccion, solo para esa persona.
     Lo es importante hacer un buen calculo de las cantidades teninedo en cuenta lo que consume una persona promedio.
     La descripcion detallada es lo mas importante ahi el usuario introduce el plan que van a hacer. Ten en cuenta si proporcionan el lugar si tienen horno para hacer pizzas, barbacoa para hacer carne, etc...
-    Devuelve exclusivamente una lista en formato JSON con este formato exacto (sin texto adicional):
+    Devuelve exclusivamente un JSON con el siguiente formato exacto (sin ningún texto adicional fuera del JSON):
 
-    [
-    {{ "name": "Nombre del producto", "quantity": Número de paquetes a comprar }}
-    ]
+    {{
+    "items": [
+        {{ "name": "Nombre del producto", "quantity": Número de paquetes a comprar }}
+    ],
+    "explanation": "Breve explicación (en lenguaje natural) de por qué se han elegido esos productos y estas cantidades para cada producto, teniendo en cuenta el tipo de plan, consumo, restricciones, etc."
+    }}
+
+    No añadas ningún texto fuera de ese JSON.
 
     Si no hay datos suficientes para algún cálculo, estima de forma razonable basándote en el resto de información (peso, unidades o descripción). No repitas productos.
     """
@@ -63,7 +68,9 @@ def generate_cart_with_gpt(group_data, product_list):
 
     try:
         print(cleaned)
-        return json.loads(cleaned)
+        parsed = json.loads(cleaned)
+        return parsed["items"], parsed.get("explanation", "")
     except json.JSONDecodeError as e:
         print("⚠️ JSON malformado:", cleaned)
         raise e
+

@@ -465,10 +465,17 @@ def cart_detail_view(request, pk):
     if request.user not in cart.group.members.all() and not request.user.is_staff:
         return HttpResponseForbidden("No puedes ver este carrito.")
 
+    cart_items = cart.cartproduct_set.select_related("product")
+    products = [item.product for item in cart_items]
+    total_price = sum(item.quantity * item.product.price for item in cart_items)
+
     return render(request, "core/cart_detail.html", {
         "cart": cart,
         "group": cart.group,
-        "cart_items": cart.cartproduct_set.select_related("product"),
+        "cart_items": cart_items,
+        "products": products,
+        "total_price": total_price,
+        "explanation": None
     })
 
 
@@ -672,7 +679,7 @@ def generate_cart_view(request, pk):
     ])
 
     try:
-        cart_items = generate_cart_with_gpt(group_data, product_list)
+        cart_items, explanation = generate_cart_with_gpt(group_data, product_list)
 
         cart = Cart.objects.get(pk=pk)
 
@@ -683,10 +690,17 @@ def generate_cart_view(request, pk):
             if product:
                 CartProduct.objects.create(cart=cart, product=product, quantity=item["quantity"])
 
+        cart_items = cart.cartproduct_set.select_related("product")
+        products = [item.product for item in cart_items]
+        total_price = sum(item.quantity * item.product.price for item in cart_items)
+
         context = {
             "group": group,
             "cart": cart,
-            "cart_items": cart.cartproduct_set.select_related("product"),
+            "cart_items": cart_items,
+            "products": products,
+            "total_price": total_price,
+            "explanation": explanation
         }
         html = render_to_string("core/cart_detail.html", context, request=request)
         return HttpResponse(html)

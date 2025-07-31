@@ -3,7 +3,7 @@
 <div class="max-w-3xl mx-auto px-4 py-10 space-y-8 relative">
 
   {% if user == group.creator %}
-    <!-- Código de invitación fijo arriba a la derecha -->
+    
     <div class="absolute top-6 right-6 w-72 bg-blue-50 border border-blue-300 rounded-lg p-4 shadow-lg">
       <h3 class="text-md font-semibold text-blue-800 mb-1">🔗 Código de invitación</h3>
       {% if group.invite_code %}
@@ -18,7 +18,7 @@
       {% endif %}
     </div>
 
-    <!-- Botón editar grupo -->
+    
     <div class="absolute top-6 left-6">
       <a href="{% url 'group_edit' group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">
         ✏️ Editar grupo
@@ -26,7 +26,7 @@
     </div>
   {% endif %}
 
-  <!-- Tarjeta de información del grupo -->
+  
   <div class="bg-white border border-blue-200 rounded-xl shadow p-6">
     <h2 class="text-2xl font-bold text-blue-800 mb-4">{{ group.name }}</h2>
     <ul class="space-y-2 text-gray-700 text-sm">
@@ -48,7 +48,7 @@
     </ul>
   </div>
 
-  <!-- Carrito activo -->
+  
   {% if active_cart %}
     <div class="bg-yellow-100 border border-yellow-300 p-6 rounded-xl">
       <h3 class="text-lg font-bold text-yellow-800 mb-2">🛒 Carrito de la compra activo</h3>
@@ -63,7 +63,7 @@
     </div>
   {% endif %}
 
-  <!-- Pedidos realizados -->
+  
   {% if past_orders %}
     <div class="space-y-4">
       <h3 class="text-xl font-bold text-gray-800">📦 Pedidos realizados</h3>
@@ -80,7 +80,7 @@
     </div>
   {% endif %}
 
-  <!-- Acciones administrativas -->
+  
   {% if user.is_staff %}
     <div class="flex gap-4">
       <a href="{% url 'group_edit' group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">✏️ Editar</a>
