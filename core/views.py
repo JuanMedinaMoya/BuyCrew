@@ -490,7 +490,8 @@ def cart_detail_view(request, pk):
 
     return render(request, "core/cart_detail.html", {
         "cart": cart,
-        "group": cart.group
+        "group": cart.group,
+        "cart_items": cart.cartproduct_set.select_related("product"),
     })
 
 
