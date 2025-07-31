@@ -86,7 +86,13 @@
       {% block content %}{% endblock %}
     </main>
   </div>
-
+  <script>
+    document.body.addEventListener('htmx:configRequest', function (event) {
+      const scrollContainer = document.getElementById('scroll-container');
+      const scroll = scrollContainer ? scrollContainer.scrollTop : 0;
+      event.detail.parameters['scrollTop'] = scroll;
+    });
+  </script>
 </body>
 <form style="display: none;">
     {% csrf_token %}

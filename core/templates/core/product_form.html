@@ -141,17 +141,6 @@
     selectElement.innerHTML = '';
     options.forEach(opt => selectElement.add(opt));
   }
-
-  function ensureSelected() {
-    const selected = document.getElementById('selectedCategories');
-    const options = Array.from(selected.options);
-    if (options.length === 0) {
-      alert("Debes seleccionar al menos una categoría.");
-      return false;
-    }
-    options.forEach(option => option.selected = true);
-    return true;
-  }
 </script>
 
 {% endblock %}

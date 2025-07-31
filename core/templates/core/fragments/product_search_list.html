@@ -2,8 +2,8 @@
 
 <div class="flex gap-6">
   <!-- Listado de productos -->
-  <div class="w-3/4 max-h-[700px] overflow-y-auto pr-2">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+  <div id="scroll-container" class="w-3/4 max-h-[700px] overflow-y-auto pr-2">
+    <div id="product-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
       {% for product in products %}
         <div class="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col justify-between">
           {% if product.image %}
@@ -117,4 +117,17 @@
       <p class="text-gray-500">No hay productos añadidos.</p>
     {% endif %}
   </div>
+  {% if scroll_top %}
+  <script>
+    (function() {
+      const scrollContainer = document.getElementById("scroll-container");
+      const scrollTop = Number("{{ scroll_top|default:"0" }}");
+      if (scrollContainer && !isNaN(scrollTop)) {
+        scrollContainer.scrollTop = scrollTop;
+      }
+    })();
+  </script>
+  {% endif %}
+
 </div>
+

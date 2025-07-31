@@ -179,21 +179,18 @@ def product_create_view(request):
         units = int(units) if units else None
         weight_per_unit_kg = float(weight_per_unit_kg) if weight_per_unit_kg else None
 
-        if not categories:
-            context["error"] = "Debes seleccionar al menos una categoría."
-        else:
-            product = Product.objects.create(
-                name=name,
-                price=price,
-                stock=stock,
-                description=description,
-                weight_kg=weight_kg or None,
-                units=units or None,
-                weight_per_unit_kg=weight_per_unit_kg or None,
-                image=image
-            )
-            product.categories.set(categories)
-            context["success"] = "✅ Producto creado correctamente"
+        product = Product.objects.create(
+            name=name,
+            price=price,
+            stock=stock,
+            description=description,
+            weight_kg=weight_kg or None,
+            units=units or None,
+            weight_per_unit_kg=weight_per_unit_kg or None,
+            image=image
+        )
+        product.categories.set(categories)
+        context["success"] = "✅ Producto creado correctamente"
 
     return render(request, "core/product_form.html", context)
 
@@ -275,7 +272,7 @@ def group_list_view(request):
 @csrf_protect
 def group_detail_view(request, pk):
     group = get_object_or_404(Group, pk=pk)
-    if request.user not in group.members.all():
+    if not request.user.is_staff and request.user not in group.members.all():
         return HttpResponseForbidden("No tienes acceso a este grupo.")
 
     all_users = UserAccount.objects.exclude(id=request.user.id)
@@ -298,6 +295,7 @@ def group_edit_view(request, pk):
     if request.user != group.creator and not request.user.is_staff:
         return HttpResponseForbidden("Solo el creador o un administrador puede editar este grupo.")
     if request.method == "POST":
+        group.name = request.POST.get("name")
         group.people_count = request.POST.get("people_count")
         group.duration_days = request.POST.get("duration_days")
         group.preferences = request.POST.get("preferences")
@@ -454,7 +452,7 @@ def category_delete_view(request, name):
 def cart_create_view(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
 
-    if request.user not in group.members.all():
+    if request.user not in group.members.all() and not request.user.is_staff:
         return HttpResponseForbidden("No perteneces a este grupo.")
 
     group.carts.filter(active=True).update(active=False)
@@ -464,7 +462,7 @@ def cart_create_view(request, group_id):
 
 def cart_detail_view(request, pk):
     cart = get_object_or_404(Cart, pk=pk)
-    if request.user not in cart.group.members.all():
+    if request.user not in cart.group.members.all() and not request.user.is_staff:
         return HttpResponseForbidden("No puedes ver este carrito.")
 
     return render(request, "core/cart_detail.html", {
@@ -477,7 +475,7 @@ def cart_detail_view(request, pk):
 @require_POST
 def add_product_to_cart_view(request, cart_id, product_id):
     cart = get_object_or_404(Cart, pk=cart_id)
-    if request.user not in cart.group.members.all():
+    if request.user not in cart.group.members.all() and not request.user.is_staff:
         return HttpResponseForbidden()
 
     product = get_object_or_404(Product, pk=product_id)
@@ -487,6 +485,7 @@ def add_product_to_cart_view(request, cart_id, product_id):
 
     query = request.POST.get("q", "")
     category_id = request.POST.get("category", "")
+    scroll_top = request.POST.get("scrollTop", 0)
 
     products = Product.objects.all()
     if query:
@@ -504,6 +503,7 @@ def add_product_to_cart_view(request, cart_id, product_id):
         "cart_items": cart_items,
         "categories": categories,
         "total_price": total_price,
+        "scroll_top": scroll_top,
     })
 
 
@@ -511,7 +511,7 @@ def add_product_to_cart_view(request, cart_id, product_id):
 @require_POST
 def remove_product_from_cart_view(request, cart_id, product_id):
     cart = get_object_or_404(Cart, pk=cart_id)
-    if request.user not in cart.group.members.all():
+    if request.user not in cart.group.members.all() and not request.user.is_staff:
         return HttpResponseForbidden()
 
     cp = CartProduct.objects.filter(cart=cart, product_id=product_id).first()
@@ -521,6 +521,7 @@ def remove_product_from_cart_view(request, cart_id, product_id):
 
     query = request.POST.get("q", "")
     category_id = request.POST.get("category", "")
+    scroll_top = request.POST.get("scrollTop", 0)
 
     products = Product.objects.all()
     if query:
@@ -538,12 +539,13 @@ def remove_product_from_cart_view(request, cart_id, product_id):
         "cart_items": cart_items,
         "categories": categories,
         "total_price": total_price,
+        "scroll_top": scroll_top,
     })
 
 
 def cart_edit_view(request, pk):
     cart = get_object_or_404(Cart, pk=pk)
-    if request.user not in cart.group.members.all():
+    if request.user not in cart.group.members.all() and not request.user.is_staff:
         return HttpResponseForbidden("No perteneces a este grupo")
 
     if not cart.active:
