@@ -538,6 +538,7 @@ def add_product_to_cart_view(request, cart_id, product_id):
 
     return render(request, "core/fragments/product_search_list.html", {
         "products": products,
+        "all_products": Product.objects.all(),
         "cart": cart,
         "cart_items": cart_items,
         "categories": categories,
@@ -574,6 +575,7 @@ def remove_product_from_cart_view(request, cart_id, product_id):
 
     return render(request, "core/fragments/product_search_list.html", {
         "products": products,
+        "all_products": Product.objects.all(),
         "cart": cart,
         "cart_items": cart_items,
         "categories": categories,
@@ -606,6 +608,7 @@ def cart_edit_view(request, pk):
     context = {
         "cart": cart,
         "group": cart.group,
+        "all_products": Product.objects.all(),
         "products": products,
         "categories": categories,
         "cart_items": cart_items,
@@ -711,9 +714,6 @@ def order_list(request):
 @csrf_protect
 def generate_cart_view(request, pk):
     group = get_object_or_404(Cart, pk=pk).group
-
-    if not request.user.is_staff and request.user != group.creator and not request.user.is_staff:
-        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
 
     if not request.user.is_staff and request.user not in group.members.all():
         return JsonResponse({"detail": "No tienes permiso"}, status=403)
