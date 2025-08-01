@@ -1,0 +1,23 @@
+{% for order in orders %}
+<tr class="hover:bg-gray-50 transition cursor-pointer" 
+    onclick="window.location.href='{% url 'order_detail' order.pk %}'">
+  <td class="px-6 py-3 font-medium text-gray-900">{{ order.group.name }}</td>
+  <td class="px-6 py-3">{{ order.group.creator }}</td>
+  <td class="px-6 py-3">{{ order.created_at|date:"d/m/Y H:i" }}</td>
+  <td class="px-6 py-3">{{ order.total_price }} €</td>
+  <td class="px-6 py-3">{{ order.direccion }}</td>
+  <td class="px-6 py-3">
+    {% if order.confirmed %}
+      <span class="text-green-600 font-semibold">✔ Sí</span>
+    {% else %}
+      <span class="text-gray-400 italic">No</span>
+    {% endif %}
+  </td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+    No hay órdenes registradas.
+  </td>
+</tr>
+{% endfor %}

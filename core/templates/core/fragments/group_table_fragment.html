@@ -1,29 +1,26 @@
-<tbody class="divide-y divide-gray-100">
-    {% for group in all_groups %}
-      <tr class="hover:bg-gray-50 transition cursor-pointer" onclick="window.location.href='{% url 'group_detail' group.pk %}'">
-        <td class="px-6 py-3 font-medium text-gray-900">{{ group.name }}</td>
-        <td class="px-6 py-3">{{ group.people_count }}</td>
-        <td class="px-6 py-3">{{ group.duration_days }}</td>
-        <td class="px-6 py-3">
-          {% if group.pk in grupos_con_carrito %}
-            <span class="text-green-600 font-semibold">Sí</span>
-          {% else %}
-            <span class="text-gray-400 italic">No</span>
-          {% endif %}
-        </td>
-        <td class="px-6 py-3">{{ group.creator.name }}</td>
-        <td class="px-6 py-3 text-right space-x-2" onclick="event.stopPropagation()">
-          <a href="{% url 'group_edit' group.pk %}" class="text-blue-600 hover:underline">✏️ Editar</a>
-          <form action="{% url 'group_delete' group.pk %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar este grupo?');">
-            {% csrf_token %}
-            <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
-          </form>
-        </td>
-      </tr>
-    {% empty %}
-      <tr>
-        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay grupos registrados.</td>
-      </tr>
-    {% endfor %}
-</tbody>
-  
+{% for group in all_groups %}
+<tr class="hover:bg-gray-50 transition cursor-pointer" onclick="window.location.href='{% url 'group_detail' group.pk %}'">
+  <td class="px-6 py-3 font-medium text-gray-900">{{ group.name }}</td>
+  <td class="px-6 py-3">{{ group.people_count }}</td>
+  <td class="px-6 py-3">{{ group.duration_days }}</td>
+  <td class="px-6 py-3">
+    {% if group.pk in grupos_con_carrito %}
+      <span class="text-green-600 font-semibold">Sí</span>
+    {% else %}
+      <span class="text-gray-400 italic">No</span>
+    {% endif %}
+  </td>
+  <td class="px-6 py-3">{{ group.creator.name }}</td>
+  <td class="px-6 py-3 text-right space-x-2" onclick="event.stopPropagation()">
+    <a href="{% url 'group_edit' group.pk %}" class="text-blue-600 hover:underline">✏️ Editar</a>
+    <form action="{% url 'group_delete' group.pk %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar este grupo?');">
+      {% csrf_token %}
+      <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
+    </form>
+  </td>
+</tr>
+{% empty %}
+<tr>
+  <td colspan="6" class="px-6 py-4 text-center text-gray-500">No hay grupos registrados.</td>
+</tr>
+{% endfor %}

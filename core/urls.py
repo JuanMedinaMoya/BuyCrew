@@ -15,7 +15,8 @@ from .views import (
     group_join_view, cart_create_view, cart_detail_view,
     cart_edit_view, add_product_to_cart_view, remove_product_from_cart_view,
     generate_invite_code_view, order_create_view, order_detail_view,
-    order_list_view, generate_cart_view, cart_clear, product_detail_card
+    order_list_view, generate_cart_view, cart_clear, product_detail_card,
+    order_list
 )
 
 
@@ -67,6 +68,7 @@ urlpatterns = [
     path('order/create/<int:cart_id>/', order_create_view, name='order_create'),
     path('order/<int:pk>/', order_detail_view, name='order_detail'),
     path('orders/', order_list_view, name='order_list'),
+    path("order/list/", order_list, name="order_list_admin"),
 ]
 
 

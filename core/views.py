@@ -23,6 +23,7 @@ from django.shortcuts import get_list_or_404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from .utils.ai_cart_generator import generate_cart_with_gpt
+from django.db.models import Q
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserAccount.objects.all()
@@ -674,7 +675,7 @@ def order_create_view(request, cart_id):
 
 def order_detail_view(request, pk):
     order = get_object_or_404(Order, pk=pk)
-    if request.user not in order.group.members.all() and request.user != order.group.creator:
+    if not request.user.is_staff and request.user not in order.group.members.all() and request.user != order.group.creator:
         return HttpResponseForbidden("No tienes permiso para ver este pedido.")
 
     return render(request, "core/order_detail.html", {"order": order})
@@ -683,15 +684,38 @@ def order_list_view(request):
     orders = Order.objects.filter(created_by=request.user).order_by('-created_at')
     return render(request, "core/order_list.html", {"orders": orders})
 
+def order_list(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
+
+    search_query = request.GET.get("search", "").strip()
+
+    orders = Order.objects.select_related("group", "created_by").order_by("-created_at")
+
+    if search_query:
+        orders = orders.filter(
+            Q(group__name__icontains=search_query) |
+            Q(direccion__icontains=search_query)
+        )
+
+    context = {
+        "orders": orders
+    }
+
+    if request.headers.get("Hx-Request"):
+        return render(request, "core/fragments/order_table_fragment.html", context)
+
+    return render(request, "core/order_list_admin.html", context)
+
 @require_POST
 @csrf_protect
 def generate_cart_view(request, pk):
     group = get_object_or_404(Cart, pk=pk).group
 
-    if request.user != group.creator and not request.user.is_staff:
+    if not request.user.is_staff and request.user != group.creator and not request.user.is_staff:
         return HttpResponseForbidden("No tienes permiso para realizar esta acción.")
 
-    if request.user not in group.members.all():
+    if not request.user.is_staff and request.user not in group.members.all():
         return JsonResponse({"detail": "No tienes permiso"}, status=403)
 
     group_data = {
