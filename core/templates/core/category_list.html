@@ -1,62 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
 
-
-<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-  <form method="get" class="w-full md:w-1/2">
-    <input 
-      type="text" 
-      name="search" 
-      placeholder="🔍 Buscar categoría por nombre..." 
-      value="{{ request.GET.search }}" 
-      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-  </form>
-  <a href="/category/create/" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md shadow">
+<div class="flex justify-between items-center mb-6">
+  <h2 class="text-2xl font-bold text-blue-800">📁 Categorías</h2>
+  <a href="{% url 'category_create' %}/" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow">
     + Crear categoría
   </a>
 </div>
 
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+  <input 
+    type="text" 
+    name="search" 
+    placeholder="🔍 Buscar categoría por nombre..." 
+    value="{{ request.GET.search }}" 
+    class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    hx-get="{% url 'category_list' %}"
+    hx-trigger="keyup changed delay:300ms"
+    hx-target="#category-list"
+    hx-include="[name='search']"
+  >
+</div>
 
-<div class="overflow-x-auto bg-white shadow rounded-lg">
-  <table class="min-w-full divide-y divide-gray-200 text-sm">
-    <thead class="bg-gray-50 text-gray-700 font-semibold">
-      <tr>
-        <th class="px-6 py-3 text-left">Nombre</th>
-        <th class="px-6 py-3 text-left">Categoría Padre</th>
-        <th class="px-6 py-3 text-right">Acciones</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      {% for category in items %}
-        <tr class="hover:bg-gray-50 transition">
-          <td class="px-6 py-3 font-medium text-gray-900">
-            <a href="{% url 'category_detail' category.name %}" class="hover:underline text-blue-600">
-              {{ category.name }}
-            </a>
-          </td>
-          <td class="px-6 py-3 text-gray-700">
-            {% if category.parent %}
-              {{ category.parent.name }}
-            {% else %}
-              <span class="text-gray-400 italic">Ninguna</span>
-            {% endif %}
-          </td>
-          <td class="px-6 py-3 text-right space-x-2">
-            <a href="{% url 'category_edit' category.name %}" class="text-blue-600 hover:underline">✏️ Editar</a>
-            <form action="{% url 'category_delete' category.name %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar esta categoría?');">
-              {% csrf_token %}
-              <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
-            </form>
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3" class="px-6 py-4 text-center text-gray-500">No hay categorías registradas.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div id="category-list">
+  {% include "core/fragments/category_table.html" %}
 </div>
 
 {% endblock %}

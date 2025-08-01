@@ -15,74 +15,30 @@
   </script>
 {% endif %}
 
-
-<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-  <form method="get" class="w-full md:w-1/2">
-    <input 
-      type="text" 
-      name="search" 
-      placeholder="🔍 Buscar producto por nombre..." 
-      value="{{ request.GET.search }}" 
-      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-  </form>
-  <a href="/product/create/" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md shadow">
-    + Crear producto
+<div class="flex justify-between items-center mb-6">
+  <h2 class="text-2xl font-bold text-blue-800">📦 Productos</h2>
+  <a href="{% url 'product_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow">
+    + Crear grupo
   </a>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+  <input 
+    type="text"
+    name="search"
+    id="product-search"
+    placeholder="🔍 Buscar producto por nombre..."
+    value="{{ request.GET.search }}"
+    class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+    hx-get="{% url 'product_list_view' %}"
+    hx-trigger="keyup changed delay:300ms"
+    hx-target="#product-table"
+    hx-push-url="true"
+  >
 </div>
 
 
-<div class="overflow-x-auto bg-white shadow rounded-lg">
-  <table class="min-w-full divide-y divide-gray-200 text-sm">
-    <thead class="bg-gray-50 text-gray-700 font-semibold">
-      <tr>
-        <th class="px-6 py-3 text-left">Nombre</th>
-        <th class="px-6 py-3 text-left">Precio</th>
-        <th class="px-6 py-3 text-left">Stock</th>
-        <th class="px-6 py-3 text-left">Peso total (kg)</th>
-        <th class="px-6 py-3 text-left">Unidades</th>
-        <th class="px-6 py-3 text-left">Peso por unidad (kg)</th>
-        <th class="px-6 py-3 text-left">Categorías</th>
-        <th class="px-6 py-3 text-right">Acciones</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      {% for item in items %}
-        <tr class="hover:bg-gray-50 transition">
-          <td class="px-6 py-3 font-medium text-gray-900">{{ item.name }}</td>
-          <td class="px-6 py-3 text-gray-700">{{ item.price }} €</td>
-          <td class="px-6 py-3 text-gray-700">{{ item.stock }}</td>
-          <td class="px-6 py-3 text-gray-700">
-            {{ item.estimated_total_weight|default:"–" }}
-          </td>
-          <td class="px-6 py-3 text-gray-700">
-            {{ item.units|default:"–" }}
-          </td>
-          <td class="px-6 py-3 text-gray-700">
-            {{ item.estimated_weight_per_unit|default:"–" }}
-          </td>
-          <td class="px-6 py-3 text-gray-700">
-            {% for cat in item.categories.all %}
-              <span class="inline-block bg-gray-200 text-xs px-2 py-1 rounded">{{ cat.name }}</span>
-            {% empty %}
-              <span class="text-gray-400 text-xs">Ninguna</span>
-            {% endfor %}
-          </td>
-          <td class="px-6 py-3 text-right space-x-2">
-            <a href="{% url 'product_edit' item.pk %}" class="text-blue-600 hover:underline">✏️ Editar</a>
-            <form action="{% url 'product_delete' item.pk %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar este producto?');">
-              {% csrf_token %}
-              <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
-            </form>
-          </td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="8" class="px-6 py-4 text-center text-gray-500">No hay productos registrados.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div id="product-table">
+  {% include "core/fragments/product_table.html" %}
 </div>
 
 {% endblock %}

@@ -1,0 +1,41 @@
+<!-- core/fragments/product_detail_card.html -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50" id="product-detail-modal">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full relative">
+      <button onclick="document.getElementById('product-detail-modal').remove()" class="absolute top-2 right-2 text-gray-600 hover:text-black text-2xl leading-none">&times;</button>
+      
+      <h2 class="text-xl font-bold mb-4">{{ product.name }}</h2>
+  
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-40 object-cover rounded mb-4">
+      {% endif %}
+  
+      <ul class="space-y-1 text-gray-700 text-sm">
+        <li><strong>Precio:</strong> {{ product.price }} €</li>
+  
+        {% if product.units %}
+          <li><strong>Unidades por paquete:</strong> {{ product.units }}</li>
+        {% endif %}
+  
+        {% if product.estimated_total_weight %}
+          <li><strong>Peso total estimado:</strong> {{ product.estimated_total_weight }} kg</li>
+        {% endif %}
+  
+        {% if product.estimated_weight_per_unit %}
+          <li><strong>Peso por unidad estimado:</strong> {{ product.estimated_weight_per_unit }} kg</li>
+        {% endif %}
+  
+        {% if product.description %}
+          <li><strong>Descripción:</strong> {{ product.description }}</li>
+        {% endif %}
+  
+        <li><strong>Categorías:</strong>
+          {% for category in product.categories.all %}
+            <span class="inline-block bg-gray-200 px-2 py-1 rounded">{{ category.name }}</span>
+          {% empty %}
+            <span class="text-gray-400">Ninguna</span>
+          {% endfor %}
+        </li>
+      </ul>
+    </div>
+  </div>
+  

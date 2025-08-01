@@ -24,11 +24,16 @@
     <h3 class="text-lg font-bold mb-4">🛒 Tu pedido</h3>
 
     {% if cart_items %}
-      <ul class="space-y-3 mb-4 text-sm text-gray-700">
+    <ul class="space-y-3 mb-4 text-sm text-gray-700">
         {% for product in products %}
           {% for item in cart_items %}
             {% if item.product.id == product.id %}
-              <li class="flex justify-between">
+              <li 
+                class="flex justify-between hover:bg-blue-50 rounded px-2 py-1 transition cursor-pointer"
+                hx-get="{% url 'product_detail_card' product.pk %}"
+                hx-target="body"
+                hx-swap="beforeend"
+              >
                 <div>
                   <p class="font-medium truncate">{{ product.name }}</p>
                   <p class="text-xs text-gray-500">x{{ item.quantity }} &middot; {{ product.price|floatformat:2 }} €</p>
@@ -42,7 +47,8 @@
             {% endif %}
           {% endfor %}
         {% endfor %}
-      </ul>
+    </ul>
+      
 
       <p class="text-lg font-semibold mb-4">
         Total: <span class="text-green-700">{{ total_price|floatformat:2 }} €</span>
@@ -78,5 +84,4 @@
     <p class="text-gray-800 whitespace-pre-line">{{ explanation }}</p>
   </div>
   {% endif %}
-</div>
 {% endblock %}

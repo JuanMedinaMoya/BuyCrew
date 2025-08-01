@@ -1,53 +1,77 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="max-w-3xl mx-auto px-4 py-10 space-y-8 relative">
 
-{% if request.GET.updated %}
-  <div id="update-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
-    ✅ Producto actualizado correctamente.
-  </div>
-  <script>
-    setTimeout(() => {
-      const banner = document.getElementById("update-banner");
-      if (banner) {
-        banner.style.opacity = "0";
-        setTimeout(() => banner.remove(), 500); // espera a que termine la transición
-      }
-    }, 2000);
-  </script>
-{% endif %}
-
-<h2 class="text-2xl font-bold mb-4">{{ product.name }}</h2>
-
-<ul class="space-y-1 text-gray-700">
-  {% if product.image %}
-    <img src="{{ product.image.url }}" alt="Imagen de {{ product.name }}" class="w-64 mb-4 rounded shadow">
+  {% if request.GET.updated %}
+    <div id="update-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
+      ✅ Producto actualizado correctamente.
+    </div>
+    <script>
+      setTimeout(() => {
+        const banner = document.getElementById("update-banner");
+        if (banner) {
+          banner.style.opacity = "0";
+          setTimeout(() => banner.remove(), 500);
+        }
+      }, 2000);
+    </script>
   {% endif %}
 
-  <li><strong>Precio:</strong> {{ product.price }} €</li>
-  <li><strong>Stock:</strong> {{ product.stock }}</li>
-  <li><strong>Ratio consumo:</strong> {{ product.ratio_consumo }}</li>
-  <li><strong>Categorías:</strong>
-    {% for category in product.categories.all %}
-      <span class="inline-block bg-gray-200 px-2 py-1 rounded text-sm">{{ category.name }}</span>
-    {% empty %}
-      <span class="text-sm text-gray-400">Ninguna</span>
-    {% endfor %}
-  </li>
-</ul>
 
-{% if user.is_staff %}
-  <div class="mt-6 space-x-2">
+
+  <div class="bg-white border border-blue-200 rounded-xl shadow p-6">
+    <h2 class="text-2xl font-bold text-blue-800 mb-4">{{ product.name }}</h2>
+
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="Imagen de {{ product.name }}" class="w-full max-w-sm mb-6 rounded shadow">
+    {% endif %}
+
+    <ul class="space-y-2 text-gray-700 text-sm">
+      <li><strong>Precio:</strong> {{ product.price }} €</li>
+      <li><strong>Stock:</strong> {{ product.stock }}</li>
+
+      {% if product.units %}
+        <li><strong>Unidades por paquete:</strong> {{ product.units }}</li>
+      {% endif %}
+
+      {% if product.estimated_total_weight %}
+        <li><strong>Peso total estimado:</strong> {{ product.estimated_total_weight }} kg</li>
+      {% endif %}
+
+      {% if product.estimated_weight_per_unit %}
+        <li><strong>Peso por unidad estimado:</strong> {{ product.estimated_weight_per_unit }} kg</li>
+      {% endif %}
+
+      {% if product.description %}
+        <li><strong>Descripción:</strong> {{ product.description }}</li>
+      {% endif %}
+
+      <li><strong>Categorías:</strong>
+        {% if product.categories.all %}
+          <div class="flex flex-wrap gap-2 mt-1">
+            {% for category in product.categories.all %}
+              <span class="inline-block bg-gray-200 px-2 py-1 rounded text-sm">{{ category.name }}</span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <span class="text-sm text-gray-400">Ninguna</span>
+        {% endif %}
+      </li>
+    </ul>
+  </div>
+  {% if user.is_staff %}
+  <div class="flex gap-4 justify-end mt-6">
     <a href="{% url 'product_edit' product.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      ✏️ Editar Producto
+      ✏️ Editar producto
     </a>
-
-    <form action="{% url 'product_delete' product.pk %}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este producto?');">
+    <form action="{% url 'product_delete' product.pk %}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este producto?');">
       {% csrf_token %}
       <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-        🗑️ Borrar Producto
+        🗑️ Borrar producto
       </button>
     </form>
   </div>
 {% endif %}
 
+</div>
 {% endblock %}

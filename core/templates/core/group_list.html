@@ -2,6 +2,45 @@
 {% block content %}
 
 
+{% if user.is_staff %}
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-blue-800">👥 Panel de grupos (Admin)</h2>
+    <a href="{% url 'group_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow">
+      + Crear grupo
+    </a>
+  </div>
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <input 
+      type="text"
+      name="search"
+      id="group-search"
+      placeholder="🔍 Buscar grupo por nombre..."
+      value="{{ request.GET.search }}"
+      class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      hx-get="{% url 'group_list' %}"
+      hx-trigger="keyup changed delay:300ms"
+      hx-target="#group-list-container"
+    >
+  </div>
+  <div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50 text-gray-700 font-semibold">
+        <tr>
+          <th class="px-6 py-3 text-left">Nombre</th>
+          <th class="px-6 py-3 text-left">Personas</th>
+          <th class="px-6 py-3 text-left">Duración (días)</th>
+          <th class="px-6 py-3 text-left">Carrito</th>
+          <th class="px-6 py-3 text-left">Creador</th>
+          <th class="px-6 py-3 text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="group-list-container">
+        {% include "core/fragments/group_table_fragment.html" %}
+      </tbody>      
+    </table>
+  </div>
+
+{% else %}
 <div class="flex flex-wrap justify-center gap-4 mb-8">
   <a href="/group/create/" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow">
     + Crear grupo
@@ -66,5 +105,7 @@
     <p class="text-gray-500 text-center mt-6">No perteneces a ningún grupo.</p>
   {% endif %}
 </div>
+{% endif %}
+
 
 {% endblock %}

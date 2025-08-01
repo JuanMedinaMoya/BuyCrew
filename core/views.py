@@ -197,14 +197,23 @@ def product_create_view(request):
 
 
 def product_list_view(request):
+    search = request.GET.get("search", "")
     items = Product.objects.all()
+    if search:
+        items = items.filter(name__icontains=search)
+
+    if request.headers.get("HX-Request") == "true":
+        return render(request, "core/fragments/product_table.html", {"items": items})
+
     return render(request, "core/product_list.html", {"items": items})
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     return render(request, "core/product_detail.html", {"product": product})
 
-
+def product_detail_card(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, "core/fragments/product_detail_card.html", {"product": product})
 
 @require_POST
 @csrf_protect
@@ -250,7 +259,10 @@ def group_create_view(request):
 
 def group_list_view(request):
     if request.user.is_staff:
+        search_query = request.GET.get("search", "").strip()
         all_groups = Group.objects.all()
+        if search_query:
+            all_groups = all_groups.filter(name__icontains=search_query)
     else:
         all_groups = Group.objects.filter(members=request.user)
 
@@ -262,10 +274,17 @@ def group_list_view(request):
         if group.carts.filter(active=True).exists():
             grupos_con_carrito.add(group.pk)
 
+    if request.headers.get("HX-Request") and request.user.is_staff:
+        return render(request, "core/fragments/group_table_fragment.html", {
+            "all_groups": all_groups,
+            "grupos_con_carrito": grupos_con_carrito,
+        })
+
     return render(request, "core/group_list.html", {
         "creador_groups": creador_groups,
         "miembro_groups": miembro_groups,
-        "grupos_con_carrito": grupos_con_carrito
+        "grupos_con_carrito": grupos_con_carrito,
+        "all_groups": all_groups if request.user.is_staff else None
     })
 
 
@@ -362,8 +381,20 @@ def category_create_view(request):
 
 
 def category_list_view(request):
-    items = Category.objects.all()
-    return render(request, "core/category_list.html", {"items": items})
+    query = request.GET.get("search", "")
+    categories = Category.objects.all()
+    if query:
+        categories = categories.filter(name__icontains=query)
+
+    context = {
+        "items": categories
+    }
+
+    if request.headers.get("HX-Request"):
+        return render(request, "core/fragments/category_table.html", context)
+
+    return render(request, "core/category_list.html", context)
+
 
 @csrf_protect
 def product_edit(request, pk):

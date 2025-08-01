@@ -15,7 +15,7 @@ from .views import (
     group_join_view, cart_create_view, cart_detail_view,
     cart_edit_view, add_product_to_cart_view, remove_product_from_cart_view,
     generate_invite_code_view, order_create_view, order_detail_view,
-    order_list_view, generate_cart_view, cart_clear
+    order_list_view, generate_cart_view, cart_clear, product_detail_card
 )
 
 
@@ -44,10 +44,11 @@ urlpatterns = [
     path('product/<int:pk>/delete/', product_delete, name='product_delete'),
     path('product/<int:pk>/', product_detail, name='product_detail'),
     path('product/<int:pk>/edit/', product_edit, name='product_edit'),
-    path('category/create/', category_create_view),
-    path('category/list/', category_list_view),
-    path('group/create/', group_create_view),
-    path('group/list/', group_list_view),
+    path('product/<int:pk>/card/', product_detail_card, name='product_detail_card'),
+    path('category/create/', category_create_view, name='category_create'),
+    path('category/list/', category_list_view, name='category_list'),
+    path('group/create/', group_create_view, name='group_create'),
+    path('group/list/', group_list_view, name='group_list'),
     path('group/<int:pk>/', group_detail_view, name='group_detail'),
     path('group/<int:pk>/edit/', group_edit_view, name='group_edit'),
     path('group/<int:pk>/delete/', group_delete_view, name='group_delete'),

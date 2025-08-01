@@ -1,11 +1,16 @@
 {% load custom_filters %}
 
 <div class="flex gap-6">
-  
+
   <div id="scroll-container" class="w-3/4 max-h-[700px] overflow-y-auto pr-2">
     <div id="product-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
       {% for product in products %}
-        <div class="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col justify-between">
+        <div 
+          class="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col justify-between cursor-pointer"
+          hx-get="{% url 'product_detail_card' product.pk %}"
+          hx-target="body"
+          hx-swap="beforeend"
+        >
           {% if product.image %}
             <img src="{{ product.image.url }}" alt="{{ product.name }}" class="h-32 w-full object-cover rounded mb-3">
           {% else %}
@@ -19,7 +24,7 @@
             <p class="text-sm text-gray-600">{{ product.price|floatformat:2 }} €</p>
           </div>
 
-          <div class="flex items-center justify-center gap-3 mt-auto">
+          <div class="flex items-center justify-center gap-3 mt-auto" onclick="event.stopPropagation()">
             {% if product.id in cart_items %}
               <form method="POST"
                     hx-post="{% url 'cart_remove_item' cart.pk product.pk %}"
@@ -59,7 +64,6 @@
     </div>
   </div>
 
-  
   <div class="w-1/4 bg-white rounded-lg shadow p-6 sticky top-10 h-fit">
     <h3 class="text-lg font-bold mb-4">🛒 Tu pedido</h3>
     {% if cart_items %}
@@ -117,6 +121,7 @@
       <p class="text-gray-500">No hay productos añadidos.</p>
     {% endif %}
   </div>
+
   {% if scroll_top %}
   <script>
     (function() {
@@ -128,6 +133,4 @@
     })();
   </script>
   {% endif %}
-
 </div>
-

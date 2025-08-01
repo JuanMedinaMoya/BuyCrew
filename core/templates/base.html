@@ -5,14 +5,13 @@
   <title>BuyCrew</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-
-    <script>
-        document.body?.addEventListener('htmx:configRequest', function (event) {
-            const csrftoken = getCookie('csrftoken');
-            if (csrftoken) {
-                event.detail.headers['X-CSRFToken'] = csrftoken;
-            }
-        });
+  <script>
+    document.body?.addEventListener('htmx:configRequest', function (event) {
+      const csrftoken = getCookie('csrftoken');
+      if (csrftoken) {
+        event.detail.headers['X-CSRFToken'] = csrftoken;
+      }
+    });
 
     function getCookie(name) {
       const cookies = document.cookie.split(';');
@@ -33,65 +32,74 @@
   </div>
 
   <div class="flex">
-    
+
     {% if user.is_authenticated and user.is_staff %}
     <aside class="hidden md:block w-64 bg-white shadow h-screen sticky top-0">
-        <nav class="p-6">
-            <ul class="space-y-2 text-gray-700 text-base font-medium">
-
-                <li>
-                    <a href="/product/list/"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
-                            {% if request.path == '/product/list/' %}
-                                bg-blue-100 text-blue-700 font-semibold
-                            {% else %}
-                                hover:bg-blue-50 hover:text-blue-600
-                            {% endif %}">
-                    📦 <span>Productos</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="/category/list/"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
-                            {% if request.path == '/category/list/' %}
-                                bg-blue-100 text-blue-700 font-semibold
-                            {% else %}
-                                hover:bg-blue-50 hover:text-blue-600
-                            {% endif %}">
-                    🗂️ <span>Categorías</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="/group/list/"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg transition 
-                            {% if request.path == '/group/list/' %}
-                                bg-blue-100 text-blue-700 font-semibold
-                            {% else %}
-                                hover:bg-blue-50 hover:text-blue-600
-                            {% endif %}">
-                    👥 <span>Grupos</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+      <nav class="p-6">
+        <ul class="space-y-2 text-gray-700 text-base font-medium">
+          <li>
+            <a href="/product/list/" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {% if request.path == '/product/list/' %}bg-blue-100 text-blue-700 font-semibold{% else %}hover:bg-blue-50 hover:text-blue-600{% endif %}">
+              📦 <span>Productos</span>
+            </a>
+          </li>
+          <li>
+            <a href="/category/list/" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {% if request.path == '/category/list/' %}bg-blue-100 text-blue-700 font-semibold{% else %}hover:bg-blue-50 hover:text-blue-600{% endif %}">
+              🗂️ <span>Categorías</span>
+            </a>
+          </li>
+          <li>
+            <a href="/group/list/" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {% if request.path == '/group/list/' %}bg-blue-100 text-blue-700 font-semibold{% else %}hover:bg-blue-50 hover:text-blue-600{% endif %}">
+              👥 <span>Grupos</span>
+            </a>
+          </li>
+          <li>
+            <a href="/order/list/" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {% if request.path == '/order/list/' %}bg-blue-100 text-blue-700 font-semibold{% else %}hover:bg-blue-50 hover:text-blue-600{% endif %}">
+              📟 <span>Pedidos</span>
+            </a>
+          </li>
+          <li>
+            <a href="/cart/list/" class="flex items-center gap-2 px-4 py-2 rounded-lg transition {% if request.path == '/cart/list/' %}bg-blue-100 text-blue-700 font-semibold{% else %}hover:bg-blue-50 hover:text-blue-600{% endif %}">
+              🛒 <span>Carritos</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </aside>
     {% endif %}
 
-    <main class="flex-grow {% block main_padding %}p-6{% endblock %}">
+    <main id="main-content" class="flex-grow {% block main_padding %}p-6{% endblock %}">
       {% block content %}{% endblock %}
     </main>
   </div>
+
   <script>
     document.body.addEventListener('htmx:configRequest', function (event) {
       const scrollContainer = document.getElementById('scroll-container');
       const scroll = scrollContainer ? scrollContainer.scrollTop : 0;
       event.detail.parameters['scrollTop'] = scroll;
     });
+
+    document.body.addEventListener("htmx:configRequest", (event) => {
+      const postUrl = event.detail.elt?.getAttribute("hx-post");
+      if (postUrl?.includes("generate")) {
+        document.getElementById("loading-overlay")?.classList.remove("hidden");
+      }
+    });
+
+    document.body.addEventListener("htmx:beforeOnLoad", () => {
+      document.getElementById("loading-overlay")?.classList.add("hidden");
+    });
+
+    document.body.addEventListener("htmx:afterRequest", () => {
+      document.getElementById("loading-overlay")?.classList.add("hidden");
+    });
   </script>
+
+  <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center z-[9999] hidden">
+    <div class="w-16 h-16 border-4 border-white border-t-blue-500 rounded-full animate-spin"></div>
+    <p class="mt-4 text-white text-sm">Generando carrito…</p>
+  </div>
+
 </body>
-<form style="display: none;">
-    {% csrf_token %}
-</form>
+<form style="display: none;">{% csrf_token %}</form>
 </html>

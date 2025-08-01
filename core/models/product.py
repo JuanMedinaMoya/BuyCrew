@@ -14,7 +14,7 @@ class Product(models.Model):
 
     weight_kg = models.FloatField(
         null=True, blank=True,
-        help_text="Peso total del paquete del producto (en kilogramos). Ej: 0.5 para 500 gramos"
+        help_text="Peso total o capacidad del paquete del producto (en kilogramos o Litros). Ej: 0.5 para 500 gramos"
     )
 
     units = models.PositiveIntegerField(
@@ -24,7 +24,7 @@ class Product(models.Model):
 
     weight_per_unit_kg = models.FloatField(
         null=True, blank=True,
-        help_text="Peso de una unidad del producto, si aplica (en kilogramos). Ej: 0.33 para una lata de 330 ml"
+        help_text="Peso o capacidad de una unidad del producto, si aplica (en kilogramos o litros). Ej: 0.33 para una lata de 330 ml"
     )
 
     description = models.TextField(

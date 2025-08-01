@@ -141,6 +141,12 @@
     selectElement.innerHTML = '';
     options.forEach(opt => selectElement.add(opt));
   }
+
+  function ensureSelected() {
+    const select = document.getElementById('selectedCategories');
+    Array.from(select.options).forEach(option => option.selected = true);
+    return true;
+  }
 </script>
 
 {% endblock %}
