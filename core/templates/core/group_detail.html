@@ -83,7 +83,7 @@
   
   {% if user.is_staff %}
     <div class="flex gap-4">
-      <a href="{% url 'group_edit' group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">✏️ Editar</a>
+      <a href="{% url 'group_edit' group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"> Editar</a>
       <form action="{% url 'group_delete' group.pk %}" method="POST" onsubmit="return confirm('¿Eliminar este grupo?');">
         {% csrf_token %}
         <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">️ Borrar</button>
