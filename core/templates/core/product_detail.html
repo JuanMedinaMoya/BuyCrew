@@ -62,7 +62,7 @@
   {% if user.is_staff %}
   <div class="flex gap-4 justify-end mt-6">
     <a href="{% url 'product_edit' product.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      ✏️ Editar producto
+     Editar producto
     </a>
     <form action="{% url 'product_delete' product.pk %}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este producto?');">
       {% csrf_token %}
