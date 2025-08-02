@@ -183,7 +183,7 @@ def product_create_view(request):
         product.categories.set(categories)
         context["success"] = "Producto creado correctamente"
 
-    return render(request, "core/product_form.html", context)
+    return render(request, "core/product/product_form.html", context)
 
 
 
@@ -194,17 +194,17 @@ def product_list_view(request):
         items = items.filter(name__icontains=search)
 
     if request.headers.get("HX-Request") == "true":
-        return render(request, "core/fragments/product_table.html", {"items": items})
+        return render(request, "core/parts/product_table.html", {"items": items})
 
-    return render(request, "core/product_list.html", {"items": items})
+    return render(request, "core/product/product_list.html", {"items": items})
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, "core/product_detail.html", {"product": product})
+    return render(request, "core/product/product_detail.html", {"product": product})
 
 def product_detail_card(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, "core/fragments/product_detail_card.html", {"product": product})
+    return render(request, "core/parts/product_detail_card.html", {"product": product})
 
 @require_POST
 @csrf_protect
@@ -246,7 +246,7 @@ def group_create_view(request):
         group.members.add(request.user)
         context["success"] = "Grupo creado correctamente"
 
-    return render(request, "core/group_form.html", context)
+    return render(request, "core/group/group_form.html", context)
 
 def group_list_view(request):
     if request.user.is_staff:
@@ -266,12 +266,12 @@ def group_list_view(request):
             grupos_con_carrito.add(group.pk)
 
     if request.headers.get("HX-Request") and request.user.is_staff:
-        return render(request, "core/fragments/group_table_fragment.html", {
+        return render(request, "core/parts/group_table_fragment.html", {
             "all_groups": all_groups,
             "grupos_con_carrito": grupos_con_carrito,
         })
 
-    return render(request, "core/group_list.html", {
+    return render(request, "core/group/group_list.html", {
         "creador_groups": creador_groups,
         "miembro_groups": miembro_groups,
         "grupos_con_carrito": grupos_con_carrito,
@@ -290,7 +290,7 @@ def group_detail_view(request, pk):
     past_carts = group.carts.filter(active=False).order_by('-id')
     past_orders = Order.objects.filter(group=group).order_by('-created_at')
 
-    return render(request, "core/group_detail.html", {
+    return render(request, "core/group/group_detail.html", {
         "group": group,
         "all_users": all_users,
         "active_cart": active_cart,
@@ -319,7 +319,7 @@ def group_edit_view(request, pk):
         response['HX-Redirect'] = f'/group/{group.pk}/?updated=1'
         return redirect('group_detail', pk=group.pk)
 
-    return render(request, "core/group_form.html", {
+    return render(request, "core/group/group_form.html", {
         "group": group,
         "edit_mode": True
     })
@@ -339,7 +339,7 @@ def group_join_view(request):
             group.members.add(request.user)
             context["success"] = f"Te has unido a '{group.name}' correctamente."
 
-    return render(request, "core/group_join.html", context)
+    return render(request, "core/group/group_join.html", context)
 
 
 @require_POST
@@ -368,7 +368,7 @@ def category_create_view(request):
             Category.objects.create(name=name, parent=parent)
             context["success"] = f"Categoría '{name}' creada correctamente"
     
-    return render(request, "core/category_form.html", context)
+    return render(request, "core/category/category_form.html", context)
 
 
 def category_list_view(request):
@@ -382,9 +382,9 @@ def category_list_view(request):
     }
 
     if request.headers.get("HX-Request"):
-        return render(request, "core/fragments/category_table.html", context)
+        return render(request, "core/parts/category_table.html", context)
 
-    return render(request, "core/category_list.html", context)
+    return render(request, "core/category/category_list.html", context)
 
 
 @csrf_protect
@@ -421,7 +421,7 @@ def product_edit(request, pk):
         response['HX-Redirect'] = f'/product/{product.pk}/?updated=1'
         return response
 
-    return render(request, "core/product_form.html", {
+    return render(request, "core/product/product_form.html", {
         "product": product,
         "category_list": categories,
         "edit_mode": True
@@ -429,7 +429,7 @@ def product_edit(request, pk):
 
 def category_detail_view(request, name):
     category = get_object_or_404(Category, name=name)
-    return render(request, "core/category_detail.html", {"category": category})
+    return render(request, "core/category/category_detail.html", {"category": category})
 
 
 @csrf_protect
@@ -458,7 +458,7 @@ def category_edit_view(request, name):
         response['HX-Redirect'] = f"/category/{category.name}/?updated=1"
         return response
 
-    return render(request, "core/category_form.html", context)
+    return render(request, "core/category/category_form.html", context)
 
 @require_POST
 @csrf_protect
@@ -491,7 +491,7 @@ def cart_detail_view(request, pk):
     products = [item.product for item in cart_items]
     total_price = sum(item.quantity * item.product.price for item in cart_items)
 
-    return render(request, "core/cart_detail.html", {
+    return render(request, "core/cart/cart_detail.html", {
         "cart": cart,
         "group": cart.group,
         "cart_items": cart_items,
@@ -526,7 +526,7 @@ def add_product_to_cart_view(request, cart_id, product_id):
     total_price = sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart))
     categories = Category.objects.all()
 
-    return render(request, "core/fragments/product_search_list.html", {
+    return render(request, "core/parts/product_search_list.html", {
         "products": products,
         "all_products": Product.objects.all(),
         "cart": cart,
@@ -563,7 +563,7 @@ def remove_product_from_cart_view(request, cart_id, product_id):
     total_price = sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart))
     categories = Category.objects.all()
 
-    return render(request, "core/fragments/product_search_list.html", {
+    return render(request, "core/parts/product_search_list.html", {
         "products": products,
         "all_products": Product.objects.all(),
         "cart": cart,
@@ -606,9 +606,9 @@ def cart_edit_view(request, pk):
     }
 
     if request.headers.get("Hx-Request"):
-        return render(request, "core/fragments/product_search_list.html", context)
+        return render(request, "core/parts/product_search_list.html", context)
 
-    return render(request, "core/cart_edit.html", context)
+    return render(request, "core/cart/cart_edit.html", context)
 
 @csrf_protect
 def cart_clear(request, pk):
@@ -671,11 +671,11 @@ def order_detail_view(request, pk):
     if not request.user.is_staff and request.user not in order.group.members.all() and request.user != order.group.creator:
         return HttpResponseForbidden("No tienes permiso para ver este pedido.")
 
-    return render(request, "core/order_detail.html", {"order": order})
+    return render(request, "core/order/order_detail.html", {"order": order})
 
 def order_list_view(request):
     orders = Order.objects.filter(created_by=request.user).order_by('-created_at')
-    return render(request, "core/order_list.html", {"orders": orders})
+    return render(request, "core/order/order_list.html", {"orders": orders})
 
 def order_list(request):
     if not request.user.is_staff:
@@ -696,9 +696,9 @@ def order_list(request):
     }
 
     if request.headers.get("Hx-Request"):
-        return render(request, "core/fragments/order_table_fragment.html", context)
+        return render(request, "core/parts/order_table_fragment.html", context)
 
-    return render(request, "core/order_list_admin.html", context)
+    return render(request, "core/order/order_list_admin.html", context)
 
 @require_POST
 @csrf_protect
@@ -747,7 +747,7 @@ def generate_cart_view(request, pk):
             "total_price": total_price,
             "explanation": explanation
         }
-        html = render_to_string("core/cart_detail.html", context, request=request)
+        html = render_to_string("core/cart/cart_detail.html", context, request=request)
         return HttpResponse(html)
 
     except Exception as e:
