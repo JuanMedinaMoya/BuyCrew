@@ -6,13 +6,6 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 @register.filter
-def mul(value, arg):
-    try:
-        return float(value) * float(arg)
-    except (ValueError, TypeError):
-        return ''
-
-@register.filter
 def multiply(value, arg):
     try:
         return float(value) * float(arg)

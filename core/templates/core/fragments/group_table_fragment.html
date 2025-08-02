@@ -15,7 +15,7 @@
     <a href="{% url 'group_edit' group.pk %}" class="text-blue-600 hover:underline">✏️ Editar</a>
     <form action="{% url 'group_delete' group.pk %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar este grupo?');">
       {% csrf_token %}
-      <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
+      <button type="submit" class="text-red-600 hover:underline">️ Eliminar</button>
     </form>
   </td>
 </tr>

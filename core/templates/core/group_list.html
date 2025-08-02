@@ -4,7 +4,7 @@
 
 {% if user.is_staff %}
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-blue-800">👥 Panel de grupos (Admin)</h2>
+    <h2 class="text-2xl font-bold text-blue-800"> Panel de grupos (Admin)</h2>
     <a href="{% url 'group_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow">
       + Crear grupo
     </a>
@@ -14,7 +14,7 @@
       type="text"
       name="search"
       id="group-search"
-      placeholder="🔍 Buscar grupo por nombre..."
+      placeholder=" Buscar grupo por nombre..."
       value="{{ request.GET.search }}"
       class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       hx-get="{% url 'group_list' %}"
@@ -46,21 +46,21 @@
     + Crear grupo
   </a>
   <a href="/group/join/" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-full shadow">
-    🔑 Unirse a grupo
+     Unirse a grupo
   </a>
 </div>
 
 <div class="space-y-6 max-w-3xl mx-auto px-4">
   {% if creador_groups %}
-    <h2 class="text-xl font-bold text-gray-800 mb-2">👑 Grupos creados por ti</h2>
+    <h2 class="text-xl font-bold text-gray-800 mb-2"> Grupos creados por ti</h2>
     {% for item in creador_groups %}
       <a href="{% url 'group_detail' item.pk %}" class="block bg-white hover:bg-blue-50 border border-gray-200 rounded-xl shadow p-6 transition duration-200">
         <div class="flex justify-between items-center">
           <div>
             <h3 class="text-lg font-bold text-blue-700">{{ item.name }}</h3>
-            <p class="text-sm text-gray-600">👥 {{ item.people_count }} personas · ⏳ {{ item.duration_days }} días</p>
+            <p class="text-sm text-gray-600"> {{ item.people_count }} personas · ⏳ {{ item.duration_days }} días</p>
             <p class="text-sm mt-1">
-              🛒 Carrito: 
+               Carrito: 
               {% if item.pk in grupos_con_carrito %}
                 <span class="text-green-600 font-semibold">Activo</span>
               {% else %}
@@ -77,15 +77,15 @@
   {% endif %}
 
   {% if miembro_groups %}
-    <h2 class="text-xl font-bold text-gray-800 mt-10 mb-2">👥 Grupos donde eres miembro</h2>
+    <h2 class="text-xl font-bold text-gray-800 mt-10 mb-2"> Grupos donde eres miembro</h2>
     {% for item in miembro_groups %}
       <a href="{% url 'group_detail' item.pk %}" class="block bg-white hover:bg-blue-50 border border-gray-200 rounded-xl shadow p-6 transition duration-200">
         <div class="flex justify-between items-center">
           <div>
             <h3 class="text-lg font-bold text-blue-700">{{ item.name }}</h3>
-            <p class="text-sm text-gray-600">👥 {{ item.people_count }} personas · ⏳ {{ item.duration_days }} días</p>
+            <p class="text-sm text-gray-600"> {{ item.people_count }} personas · ⏳ {{ item.duration_days }} días</p>
             <p class="text-sm mt-1">
-              🛒 Carrito: 
+               Carrito: 
               {% if item.pk in grupos_con_carrito %}
                 <span class="text-green-600 font-semibold">Activo</span>
               {% else %}

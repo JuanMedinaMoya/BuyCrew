@@ -1,25 +1,19 @@
 import json
 from rest_framework import viewsets
 from .models import Cart, Product, UserAccount, Group, CartProduct, Category, Order, OrderItem
-from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializer, UserLoginSerializer, UserSerializer, GroupSerializer, CategorySerializer
-# from django.contrib.auth.models import User
+from .serializers import CartSerializer, ProductSerializer, UserRegisterSerializer, UserLoginSerializer, GroupSerializer, CategorySerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import SessionAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model, login, logout, authenticate, login
-from rest_framework import generics, permissions, status
+from django.contrib.auth import login, logout
+from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from rest_framework.decorators import action
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
-from django.shortcuts import get_list_or_404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from .utils.ai_cart_generator import generate_cart_with_gpt
@@ -65,8 +59,6 @@ class UserLogout(APIView):
         response['HX-Redirect'] = '/'
         return response
         
-
-
 class UserView(APIView):
     permission_classes = [AllowAny]
 
@@ -86,8 +78,6 @@ class UserView(APIView):
         else:
             html = render_to_string("core/navbar_anonymous.html")
         return HttpResponse(html)
-
-
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
@@ -191,7 +181,7 @@ def product_create_view(request):
             image=image
         )
         product.categories.set(categories)
-        context["success"] = "✅ Producto creado correctamente"
+        context["success"] = "Producto creado correctamente"
 
     return render(request, "core/product_form.html", context)
 
@@ -254,7 +244,7 @@ def group_create_view(request):
             description=description
         )
         group.members.add(request.user)
-        context["success"] = "✅ Grupo creado correctamente"
+        context["success"] = "Grupo creado correctamente"
 
     return render(request, "core/group_form.html", context)
 
@@ -342,12 +332,12 @@ def group_join_view(request):
         group = Group.objects.filter(invite_code=code).first()
 
         if not group:
-            context["error"] = "❌ Código inválido."
+            context["error"] = "Código de grupo inválido."
         elif request.user in group.members.all():
-            context["error"] = "⚠️ Ya formas parte de este grupo."
+            context["error"] = "Ya estas en el grupo."
         else:
             group.members.add(request.user)
-            context["success"] = f"✅ Te has unido a '{group.name}' correctamente."
+            context["success"] = f"Te has unido a '{group.name}' correctamente."
 
     return render(request, "core/group_join.html", context)
 
@@ -376,7 +366,7 @@ def category_create_view(request):
             context["error"] = f"La categoría '{name}' ya existe."
         else:
             Category.objects.create(name=name, parent=parent)
-            context["success"] = f"✅ Categoría '{name}' creada correctamente"
+            context["success"] = f"Categoría '{name}' creada correctamente"
     
     return render(request, "core/category_form.html", context)
 

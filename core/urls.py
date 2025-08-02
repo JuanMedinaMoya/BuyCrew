@@ -26,10 +26,6 @@ router.register(r'cart', CartViewSet)
 router.register(r'product', ProductView)
 router.register(r'groups', GroupViewSet)
 router.register(r'category', CategoryViewSet)
-# router.register(r'login', UserLogin)
-# router.register(r'register', UserRegister)
-# router.register(r'user', UserView)
-# router.register(r'logout', UserLogout)
 
 urlpatterns = [
     path('', home_view, name='home'),
@@ -70,7 +66,5 @@ urlpatterns = [
     path('orders/', order_list_view, name='order_list'),
     path("order/list/", order_list, name="order_list_admin"),
 ]
-
-
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

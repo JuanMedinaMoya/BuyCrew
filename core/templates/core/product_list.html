@@ -2,7 +2,7 @@
 {% block content %}
 {% if request.GET.deleted %}
   <div id="delete-banner" class="mb-4 p-4 bg-red-100 text-red-800 border border-red-300 rounded transition-opacity duration-500">
-    🗑️ Producto eliminado correctamente.
+    ️ Producto eliminado correctamente.
   </div>
   <script>
     setTimeout(() => {
@@ -16,7 +16,7 @@
 {% endif %}
 
 <div class="flex justify-between items-center mb-6">
-  <h2 class="text-2xl font-bold text-blue-800">📦 Productos</h2>
+  <h2 class="text-2xl font-bold text-blue-800"> Productos</h2>
   <a href="{% url 'product_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow">
     + Crear grupo
   </a>
@@ -26,7 +26,7 @@
     type="text"
     name="search"
     id="product-search"
-    placeholder="🔍 Buscar producto por nombre..."
+    placeholder=" Buscar producto por nombre..."
     value="{{ request.GET.search }}"
     class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     hx-get="{% url 'product_list_view' %}"

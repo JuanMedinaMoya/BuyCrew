@@ -41,7 +41,7 @@
                 <a href="{% url 'product_edit' item.pk %}" class="text-blue-600 hover:underline">✏️ Editar</a>
                 <form action="{% url 'product_delete' item.pk %}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar este producto?');">
                   {% csrf_token %}
-                  <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar</button>
+                  <button type="submit" class="text-red-600 hover:underline">️ Eliminar</button>
                 </form>
               </td>
             </tr>

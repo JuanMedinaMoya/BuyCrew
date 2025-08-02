@@ -65,7 +65,7 @@
   </div>
 
   <div class="w-1/4 bg-white rounded-lg shadow p-6 sticky top-10 h-fit">
-    <h3 class="text-lg font-bold mb-4">🛒 Tu pedido</h3>
+    <h3 class="text-lg font-bold mb-4"> Tu pedido</h3>
     {% if cart_items %}
       <ul class="space-y-3 mb-4 text-sm text-gray-700">
         {% for product in all_products %}
@@ -94,14 +94,14 @@
       {% if request.user == cart.group.creator or request.user.is_staff %}
       <form method="POST" action="{% url 'order_create' cart.pk %}" class="space-y-4">
           {% csrf_token %}
-          <input type="text" name="direccion" placeholder="📦 Dirección de envío" class="w-full p-2 border rounded" required>
+          <input type="text" name="direccion" placeholder=" Dirección de envío" class="w-full p-2 border rounded" required>
           <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
-            ✅ Completar pedido
+             Completar pedido
           </button>
         </form>
       {% else %}
         <div class="space-y-2">
-          <input type="text" name="direccion" placeholder="📦 Dirección de envío" class="w-full p-2 border rounded" disabled>
+          <input type="text" name="direccion" placeholder=" Dirección de envío" class="w-full p-2 border rounded" disabled>
           <button 
             class="w-full bg-gray-400 text-white py-2 rounded cursor-not-allowed" 
             title="Solo el creador del grupo o un administrador puede completar el pedido"
@@ -114,7 +114,7 @@
       <form method="POST" action="{% url 'cart_clear' cart.pk %}" class="mt-2">
         {% csrf_token %}
         <button class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded">
-          🗑️ Vaciar carrito
+          ️ Vaciar carrito
         </button>
       </form>
     {% else %}

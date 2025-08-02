@@ -131,7 +131,7 @@ def insertar_datos():
             category_objs.append(category)
         product.categories.set(category_objs)
 
-        print(f"✅ Producto insertado o actualizado: {product.name}")
+        print(f"Producto insertado o actualizado: {product.name}")
 
 if __name__ == "__main__":
     insertar_datos()

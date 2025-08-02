@@ -15,9 +15,9 @@ client = OpenAI()
 
 def generate_cart_with_gpt(group_data, product_list):
     prompt = f"""
-    Actúa como un asistente experto en planificación de compras para grupos. 
+    Eres un asistente experto en la planificación de compras para grupos. 
 
-    Tienes que crear un carrito óptimo de productos en función del siguiente grupo:
+    Tienes que crear un carrito de la compra para productos en función del siguiente grupo:
     - Número de personas: {group_data['people_count']}
     - Número de días: {group_data['duration_days']}
     - Preferencias del grupo: {group_data['preferences']}
@@ -51,7 +51,7 @@ def generate_cart_with_gpt(group_data, product_list):
 
     No añadas ningún texto fuera de ese JSON.
 
-    Si no hay datos suficientes para algún cálculo, estima de forma razonable basándote en el resto de información (peso, unidades o descripción). No repitas productos.
+    Si no hay datos cálcular, estima de forma razonable basándote en el resto de información (peso, unidades o descripción). No repitas productos.
     """
 
     response = client.chat.completions.create(
@@ -71,6 +71,6 @@ def generate_cart_with_gpt(group_data, product_list):
         parsed = json.loads(cleaned)
         return parsed["items"], parsed.get("explanation", "")
     except json.JSONDecodeError as e:
-        print("⚠️ JSON malformado:", cleaned)
+        print("JSON malformado:", cleaned)
         raise e
 

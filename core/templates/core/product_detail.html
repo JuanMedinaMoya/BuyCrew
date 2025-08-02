@@ -4,7 +4,7 @@
 
   {% if request.GET.updated %}
     <div id="update-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
-      ✅ Producto actualizado correctamente.
+       Producto actualizado correctamente.
     </div>
     <script>
       setTimeout(() => {
@@ -67,7 +67,7 @@
     <form action="{% url 'product_delete' product.pk %}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres eliminar este producto?');">
       {% csrf_token %}
       <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-        🗑️ Borrar producto
+        ️ Borrar producto
       </button>
     </form>
   </div>

@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="flex justify-between items-center mb-6">
-  <h2 class="text-2xl font-bold text-blue-800">📁 Categorías</h2>
+  <h2 class="text-2xl font-bold text-blue-800"> Categorías</h2>
   <a href="{% url 'category_create' %}/" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow">
     + Crear categoría
   </a>
@@ -12,7 +12,7 @@
   <input 
     type="text" 
     name="search" 
-    placeholder="🔍 Buscar categoría por nombre..." 
+    placeholder=" Buscar categoría por nombre..." 
     value="{{ request.GET.search }}" 
     class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     hx-get="{% url 'category_list' %}"

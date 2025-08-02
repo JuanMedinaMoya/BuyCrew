@@ -5,7 +5,7 @@
   {% if user == group.creator %}
     
     <div class="absolute top-6 right-6 w-72 bg-blue-50 border border-blue-300 rounded-lg p-4 shadow-lg">
-      <h3 class="text-md font-semibold text-blue-800 mb-1">🔗 Código de invitación</h3>
+      <h3 class="text-md font-semibold text-blue-800 mb-1"> Código de invitación</h3>
       {% if group.invite_code %}
         <p class="text-blue-700 text-sm break-words"><strong>{{ group.invite_code }}</strong></p>
       {% else %}
@@ -51,14 +51,14 @@
   
   {% if active_cart %}
     <div class="bg-yellow-100 border border-yellow-300 p-6 rounded-xl">
-      <h3 class="text-lg font-bold text-yellow-800 mb-2">🛒 Carrito de la compra activo</h3>
+      <h3 class="text-lg font-bold text-yellow-800 mb-2"> Carrito de la compra activo</h3>
       <p class="text-sm text-yellow-900">Puedes modificar el pedido actual.</p>
-      <a href="{% url 'cart_detail' active_cart.pk %}" class="inline-block mt-4 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">👉 Ver carrito</a>
+      <a href="{% url 'cart_detail' active_cart.pk %}" class="inline-block mt-4 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition"> Ver carrito</a>
     </div>
   {% else %}
     <div>
       <a href="{% url 'cart_create' group.pk %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-        🛒 Crear carrito de la compra
+         Crear carrito de la compra
       </a>
     </div>
   {% endif %}
@@ -66,7 +66,7 @@
   
   {% if past_orders %}
     <div class="space-y-4">
-      <h3 class="text-xl font-bold text-gray-800">📦 Pedidos realizados</h3>
+      <h3 class="text-xl font-bold text-gray-800"> Pedidos realizados</h3>
       {% for order in past_orders %}
         <div class="bg-white hover:bg-blue-50 border border-gray-200 rounded-xl shadow p-4 flex justify-between items-center transition">
           <div>
@@ -86,7 +86,7 @@
       <a href="{% url 'group_edit' group.pk %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">✏️ Editar</a>
       <form action="{% url 'group_delete' group.pk %}" method="POST" onsubmit="return confirm('¿Eliminar este grupo?');">
         {% csrf_token %}
-        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">🗑️ Borrar</button>
+        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">️ Borrar</button>
       </form>
     </div>
   {% endif %}

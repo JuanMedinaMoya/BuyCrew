@@ -2,14 +2,14 @@
 {% block content %}
 
 <div class="flex justify-between items-center mb-6">
-  <h2 class="text-2xl font-bold text-blue-800">📦 Órdenes</h2>
+  <h2 class="text-2xl font-bold text-blue-800"> Órdenes</h2>
 </div>
 
 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
   <input 
     type="text"
     name="search"
-    placeholder="🔍 Buscar por grupo o dirección..."
+    placeholder=" Buscar por grupo o dirección..."
     value="{{ request.GET.search }}"
     class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
     hx-get="{% url 'order_list_admin' %}"
