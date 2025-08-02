@@ -6,8 +6,9 @@
         <span></span>
         <span class="text-sm hidden md:inline">Pedidos</span>
       </a>          
-      <a href="/group/list/" class="relative group">
-        <span class="text-2xl"></span>
+      <a href="{% url 'group_list' %}" class="text-gray-700 hover:text-blue-600 flex items-center space-x-1">
+        <span></span>
+        <span class="text-sm hidden md:inline">Carritos</span>
         {% if carritos_por_grupo %}
           <span class="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-yellow-400 border border-white animate-ping"></span>
           <span class="absolute -top-1 -right-1 block h-3 w-3 rounded-full bg-yellow-400 border border-white"></span>
