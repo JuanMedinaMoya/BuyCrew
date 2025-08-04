@@ -55,8 +55,9 @@
       </p>
 
       {% if request.user == cart.group.creator or request.user.is_staff %}
-        <form method="POST" action="{% url 'order_create' cart.pk %}" class="space-y-4">
+        <form method="POST" action="{% url 'order_create' cart.pk %}" class="space-y-4" hx-post="{% url 'order_create' cart.pk %}"  hx-target="#order-errors"  hx-swap="innerHTML">
           {% csrf_token %}
+          <div id="order-errors"></div>
           <input type="text" name="direccion" placeholder=" Dirección de envío" class="w-full p-2 border rounded" required>
           <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded">
              Completar pedido
