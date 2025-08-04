@@ -10,6 +10,7 @@
       hx-target="#register-messages" 
       hx-swap="innerHTML" 
       method="POST"
+      hx-on::after-request="if(event.detail.xhr.status === 400) htmx.process(document.body);" 
       class="space-y-4"
     >
       {% csrf_token %}

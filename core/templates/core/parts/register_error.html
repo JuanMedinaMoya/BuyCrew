@@ -1,0 +1,7 @@
+<ul class="text-red-600 list-disc list-inside">
+  {% for field, messages in errors.items %}
+    {% for msg in messages %}
+      <li><strong>{{ field|title }}:</strong> {{ msg }}</li>
+    {% endfor %}
+  {% endfor %}
+</ul>

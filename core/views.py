@@ -35,7 +35,8 @@ class UserRegister(APIView):
             response = HttpResponse()
             response['HX-Redirect'] = '/'
             return response
-        return Response(serializer.errors, status=400)
+        error_html = render_to_string("core/parts/register_error.html", {'errors': serializer.errors})
+        return HttpResponse(error_html, status=200)
 
 class UserLogin(APIView):
     permission_classes = [AllowAny]
@@ -117,14 +118,6 @@ class GroupViewSet(viewsets.ModelViewSet):
             return Response({"detail": "El creador no puede abandonar el grupo"}, status=400)
         group.members.remove(user)
         return Response({"detail": "Has salido del grupo"}, status=200)
-
-    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
-    def invite(self, request, pk=None):
-        group = self.get_object()
-        user_ids = request.data.get('user_ids', [])
-        users = UserAccount.objects.filter(id__in=user_ids)
-        group.members.add(*users)
-        return Response({"detail": "Usuarios invitados correctamente"}, status=200)
     
 
 def login_view(request):

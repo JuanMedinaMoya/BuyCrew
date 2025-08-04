@@ -2,10 +2,11 @@ from django.forms import ValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from .models import Cart, Product, UserAccount, Group, Category
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, validators=[validate_password])
 
     class Meta:
         model = UserAccount
