@@ -12,7 +12,6 @@ load_dotenv()  # Carga variables del archivo .env
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 client = OpenAI()
 
-
 def generate_cart_with_gpt(group_data, product_list):
     prompt = f"""
     Eres un asistente experto en la planificación de compras para grupos. 
@@ -51,7 +50,7 @@ def generate_cart_with_gpt(group_data, product_list):
 
     No añadas ningún texto fuera de ese JSON.
 
-    Si no hay datos cálcular, estima de forma razonable basándote en el resto de información (peso, unidades o descripción). No repitas productos.
+    Si no hay datos calcular, estima de forma razonable basándote en el resto de información (peso, unidades o descripción). No repitas productos.
     """
 
     response = client.chat.completions.create(
