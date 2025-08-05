@@ -2,10 +2,16 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@ardnt/vercel-python-wsgi"
+      "use": "@ardnt/vercel-python-wsgi",
+      "config": {
+        "runtime": "python3.12"
+      }
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "api/index.py" }
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
   ]
 }
