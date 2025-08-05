@@ -6,10 +6,9 @@ import os
 import json
 import re
 
-load_dotenv()  # Carga variables del archivo .env
-
-# Ahora ya tienes la API Key disponible:
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+load_dotenv()
+api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
 
 def generate_cart_with_gpt(group_data, product_list):
     prompt = f"""
