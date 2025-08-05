@@ -8,7 +8,8 @@ import re
 
 load_dotenv()
 api_key = os.environ.get("OPENAI_API_KEY")
-client = OpenAI(api_key=api_key)
+
+client = OpenAI()
 
 def generate_cart_with_gpt(group_data, product_list):
     prompt = f"""
