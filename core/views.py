@@ -18,6 +18,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from .utils.ai_cart_generator import generate_cart_with_gpt
 from django.db.models import Q
+from rest_framework.exceptions import AuthenticationFailed
+
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserAccount.objects.all()
@@ -43,14 +45,20 @@ class UserLogin(APIView):
 
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            login(request, user)
 
-        user = serializer.validated_data['user']
-        login(request, user)
+            response = HttpResponse()
+            response['HX-Redirect'] = '/'
+            return response
 
-        response = HttpResponse()
-        response['HX-Redirect'] = '/'
-        return response
+        except AuthenticationFailed as e:
+            html = render_to_string("core/error_message.html", {
+                "message": str(e)
+            })
+            return HttpResponse(html)
 
 class UserLogout(APIView):
     permission_classes = [IsAuthenticated]
@@ -671,7 +679,9 @@ def order_create_view(request, cart_id):
     cart.active = False
     cart.save()
 
-    return redirect('order_detail', order.pk)
+    response = HttpResponse()
+    response['HX-Redirect'] = f"/order/{order.pk}/"
+    return response
 
 
 def order_detail_view(request, pk):
