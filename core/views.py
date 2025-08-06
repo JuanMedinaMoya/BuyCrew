@@ -245,7 +245,9 @@ def group_create_view(request):
             description=description
         )
         group.members.add(request.user)
-        context["success"] = "Grupo creado correctamente"
+        response = HttpResponse()
+        response['HX-Redirect'] = '/group/list/?success=created_group'
+        return response
 
     return render(request, "core/group/group_form.html", context)
 
@@ -338,7 +340,9 @@ def group_join_view(request):
             context["error"] = "Ya estas en el grupo."
         else:
             group.members.add(request.user)
-            context["success"] = f"Te has unido a '{group.name}' correctamente."
+            response = HttpResponse()
+            response['HX-Redirect'] = f'/group/{group.pk}/?updated=join_group'
+            return redirect('group_detail', pk=group.pk)
 
     return render(request, "core/group/group_join.html", context)
 
