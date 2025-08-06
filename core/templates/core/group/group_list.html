@@ -41,6 +41,32 @@
   </div>
 
 {% else %}
+  {% if request.GET.success %}
+    {% if request.GET.success == "created_group" %}
+      <div id="create-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
+        Grupo creado correctamente.
+      </div>
+    {% elif request.GET.success == "join_group" %}
+      <div id="create-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
+        Has accedido al grupo.
+      </div>
+    {% else %}
+      <div id="create-banner" class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded transition-opacity duration-500">
+        Acción realizada correctamente.
+      </div>
+    {% endif %}
+
+    <script>
+      setTimeout(() => {
+        const banner = document.getElementById("create-banner");
+        if (banner) {
+          banner.style.opacity = "0";
+          setTimeout(() => banner.remove(), 500);
+        }
+      }, 2000);
+    </script>
+  {% endif %}
+
 <div class="flex flex-wrap justify-center gap-4 mb-8">
   <a href="/group/create/" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-full shadow">
     + Crear grupo

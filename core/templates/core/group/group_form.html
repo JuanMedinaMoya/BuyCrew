@@ -7,7 +7,13 @@
       {% if edit_mode %}Editar Grupo{% else %}Crear Grupo{% endif %}
     </h1>
 
-    <form method="POST" class="space-y-4">
+    <form  class="space-y-4"
+      method="POST" 
+      hx-post="/group/create/" 
+      hx-target="body" 
+      hx-swap="outerHTML"
+      class="space-y-4"
+    >
       {% csrf_token %}
 
       {% if success %}
