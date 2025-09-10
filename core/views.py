@@ -408,7 +408,6 @@ def product_edit(request, pk):
         if image:
             product.image = image
 
-        # Conversión segura a float/int si están presentes
         weight_kg = request.POST.get("weight_kg")
         units = request.POST.get("units")
         weight_per_unit_kg = request.POST.get("weight_per_unit_kg")
@@ -452,7 +451,6 @@ def category_edit_view(request, name):
     }
 
     if request.method == "POST":
-        # name = request.POST.get("name")  ← ya no usamos esto
         parent_name = request.POST.get("parent")
         parent = Category.objects.filter(name=parent_name).first() if parent_name else None
 

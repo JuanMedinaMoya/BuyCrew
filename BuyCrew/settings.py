@@ -145,12 +145,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',  # opcional
+        'rest_framework.authentication.BasicAuthentication',
     ],
 }
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # este es el backend básico
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 MEDIA_URL = '/media/'

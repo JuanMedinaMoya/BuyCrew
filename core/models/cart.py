@@ -1,6 +1,6 @@
 from django.db import models
 from .group import Group
-from .product import Product  # Esto no genera un problema circular.
+from .product import Product
 
 class Cart(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="carts")
