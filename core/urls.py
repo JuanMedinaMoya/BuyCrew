@@ -22,7 +22,6 @@ from .views import (
 
 
 router = DefaultRouter()
-router.register(r'cart', CartViewSet)
 router.register(r'product', ProductView)
 router.register(r'groups', GroupViewSet)
 router.register(r'category', CategoryViewSet)
@@ -33,7 +32,7 @@ urlpatterns = [
     path('api/v1/register/', UserRegister.as_view(), name='register'),
     path('api/v1/login/', UserLogin.as_view(), name='login'),
     path('api/v1/user/', UserView.as_view(), name='user'),
-    path('api/v1/logout/', UserLogout.as_view(), name='logout'), # no es necesario en el logout
+    path('api/v1/logout/', UserLogout.as_view(), name='logout'),
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
     path('product/create/', product_create_view, name='product_create'),
