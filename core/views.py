@@ -18,6 +18,8 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_POST
 from .utils.ai_cart_generator import generate_cart_with_gpt
 from django.db.models import Q
+from rest_framework.exceptions import AuthenticationFailed
+
 
 class CreateUserView(generics.CreateAPIView):
     queryset = UserAccount.objects.all()
@@ -43,14 +45,20 @@ class UserLogin(APIView):
 
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.validated_data['user']
+            login(request, user)
 
-        user = serializer.validated_data['user']
-        login(request, user)
+            response = HttpResponse()
+            response['HX-Redirect'] = '/'
+            return response
 
-        response = HttpResponse()
-        response['HX-Redirect'] = '/'
-        return response
+        except AuthenticationFailed as e:
+            html = render_to_string("core/error_message.html", {
+                "message": str(e)
+            })
+            return HttpResponse(html)
 
 class UserLogout(APIView):
     permission_classes = [IsAuthenticated]
@@ -237,7 +245,9 @@ def group_create_view(request):
             description=description
         )
         group.members.add(request.user)
-        context["success"] = "Grupo creado correctamente"
+        response = HttpResponse()
+        response['HX-Redirect'] = '/group/list/?success=created_group'
+        return response
 
     return render(request, "core/group/group_form.html", context)
 
@@ -330,7 +340,9 @@ def group_join_view(request):
             context["error"] = "Ya estas en el grupo."
         else:
             group.members.add(request.user)
-            context["success"] = f"Te has unido a '{group.name}' correctamente."
+            response = HttpResponse()
+            response['HX-Redirect'] = f'/group/{group.pk}/?updated=join_group'
+            return redirect('group_detail', pk=group.pk)
 
     return render(request, "core/group/group_join.html", context)
 
@@ -623,7 +635,6 @@ def generate_invite_code_view(request, pk):
 
     return redirect('group_detail', pk=group.pk)
 
-
 @require_POST
 @csrf_protect
 def order_create_view(request, cart_id):
@@ -637,27 +648,45 @@ def order_create_view(request, cart_id):
 
     direccion = request.POST.get("direccion", "").strip()
     if not direccion:
-        return HttpResponse("Debes especificar una dirección de envío.", status=400)
+        html = render_to_string("core/parts/error_banner.html", {
+            "message": "Debes especificar una dirección de envío."
+        })
+        return HttpResponse(html)
+
+    cart_products = cart.cartproduct_set.select_related("product")
+
+    for cp in cart_products:
+        if cp.quantity > cp.product.stock:
+            html = render_to_string("core/parts/error_banner.html", {
+                "message": f"No hay suficiente stock para el producto '{cp.product.name}'. "
+                           f"Solicitado: {cp.quantity}, Disponible: {cp.product.stock}"
+            })
+            return HttpResponse(html)
 
     order = Order.objects.create(
         group=cart.group,
         created_by=request.user,
-        total_price=sum(cp.product.price * cp.quantity for cp in CartProduct.objects.filter(cart=cart)),
+        total_price=sum(cp.product.price * cp.quantity for cp in cart_products),
         direccion=direccion,
     )
 
-    for cp in cart.cartproduct_set.all():
+    for cp in cart_products:
         OrderItem.objects.create(
             order=order,
             product=cp.product,
             quantity=cp.quantity,
             price=cp.product.price,
         )
+        cp.product.stock -= cp.quantity
+        cp.product.save()
 
     cart.active = False
     cart.save()
 
-    return redirect('order_detail', order.pk)
+    response = HttpResponse()
+    response['HX-Redirect'] = f"/order/{order.pk}/"
+    return response
+
 
 def order_detail_view(request, pk):
     order = get_object_or_404(Order, pk=pk)
